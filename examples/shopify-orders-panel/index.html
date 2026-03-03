@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopify Orders Panel — Octobots Dashboard App Example</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      color: #1a1a2e;
+      background: #ffffff;
+      padding: 12px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .badge-connected { background: #dcfce7; color: #166534; }
+    .badge-disconnected { background: #fee2e2; color: #991b1b; }
+    .badge-loading { background: #fef3c7; color: #92400e; }
+
+    .customer-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #f9fafb;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+
+    .customer-bar .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #6366f1;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .customer-bar .info { flex: 1; min-width: 0; }
+    .customer-bar .name { font-weight: 600; }
+    .customer-bar .email { color: #6b7280; font-size: 11px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+    .empty-state h2 { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    .empty-state p { font-size: 12px; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+
+    .loading .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #e5e7eb;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .order-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .order-table td {
+      padding: 8px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 12px;
+    }
+
+    .order-table tr:hover td { background: #f9fafb; }
+
+    .order-id { font-weight: 600; color: #6366f1; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .status-delivered { background: #dcfce7; color: #166534; }
+    .status-shipped { background: #dbeafe; color: #1e40af; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-processing { background: #f3e8ff; color: #6b21a8; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 11px;
+      color: #374151;
+      transition: all 0.15s;
+    }
+
+    .btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+    .btn-danger { color: #dc2626; border-color: #fca5a5; }
+    .btn-danger:hover { background: #fef2f2; }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-banner {
+      padding: 8px 12px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      color: #991b1b;
+      font-size: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      flex: 1;
+      padding: 8px 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .summary-card .value { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    .summary-card .label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Connecting to Octobots...</p>
+    </div>
+  </div>
+
+  <!-- In production, use: <script src="https://unpkg.com/@octobots/dashboard-sdk"></script> -->
+  <!-- For development, we inline a minimal postMessage bridge -->
+  <script type="module">
+    // ─── Import SDK ─────────────────────────────────────────────────
+    // import { createDashboard } from '@octobots/dashboard-sdk';
+    //
+    // For this example, we import from a relative path.
+    // In a real app, use the npm package or CDN.
+    import { createDashboard } from '../../src/index.ts';
+
+    const app = document.getElementById('app');
+    const dashboard = createDashboard({ debug: true });
+
+    // ─── State ──────────────────────────────────────────────────────
+
+    let currentCustomer = null;
+    let currentOrders = [];
+
+    // ─── Initialize ─────────────────────────────────────────────────
+
+    dashboard.init({
+      onReady: async () => {
+        currentCustomer = dashboard.getCustomerContext();
+        renderCustomerBar();
+
+        if (!currentCustomer?.customer?.primaryEmail) {
+          renderEmptyState('No customer email', 'This conversation has no linked customer email address.');
+          return;
+        }
+
+        await loadOrders(currentCustomer.customer.primaryEmail);
+      },
+    });
+
+    // ─── Listen for conversation switches ───────────────────────────
+
+    dashboard.onConversationUpdate(async () => {
+      currentCustomer = dashboard.getCustomerContext();
+      renderCustomerBar();
+
+      if (currentCustomer?.customer?.primaryEmail) {
+        await loadOrders(currentCustomer.customer.primaryEmail);
+      } else {
+        renderEmptyState('No customer email', 'This conversation has no linked customer email address.');
+      }
+    });
+
+    dashboard.onCustomerContextUpdate((ctx) => {
+      currentCustomer = ctx;
+      renderCustomerBar();
+    });
+
+    // ─── Core Functions ─────────────────────────────────────────────
+
+    async function loadOrders(email) {
+      renderLoading('Loading orders...');
+
+      const result = await dashboard.executeAction('listOrders', {
+        email,
+        limit: '10',
+      });
+
+      if (result.success && result.data) {
+        currentOrders = result.data.orders || [];
+        renderOrdersView();
+      } else {
+        const code = result.error?.code;
+        const msg = result.error?.message || 'Failed to load orders';
+
+        if (code === 'AUTH_EXPIRED') {
+          renderError('Authentication expired. Please reconnect your Shopify account in MiniApps settings.');
+        } else {
+          renderError(msg);
+        }
+      }
+    }
+
+    async function handleRefund(orderId, amount) {
+      const btn = document.querySelector(`[data-refund="${orderId}"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+      }
+
+      const result = await dashboard.executeAction('createRefund', {
+        orderId,
+        amount: String(amount),
+        reason: 'Customer requested',
+      });
+
+      if (result.success) {
+        dashboard.showToast(`Refund of ${amount} SAR issued for order #${orderId}`, 'success');
+        await dashboard.addNote(`Refund of ${amount} SAR issued for order #${orderId}`);
+
+        // Reload orders
+        if (currentCustomer?.customer?.primaryEmail) {
+          await loadOrders(currentCustomer.customer.primaryEmail);
+        }
+      } else {
+        dashboard.showToast(result.error?.message || 'Refund failed', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '↩ Refund';
+        }
+      }
+    }
+
+    // ─── Renderers ──────────────────────────────────────────────────
+
+    function renderLoading(msg) {
+      app.innerHTML = `
+        ${getHeaderHTML()}
+        ${getCustomerBarHTML()}
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>${msg}</p>
+        </div>
+      `;
+    }
+
+    function renderEmptyState(title, description) {
+      app.innerHTML = `
+        ${getHeaderHTML()}
+        ${getCustomerBarHTML()}
+        <div class="empty-state">
+          <div class="icon">📦</div>
+          <h2>${title}</h2>
+          <p>${description}</p>
+        </div>
+      `;
+    }
+
+    function renderError(message) {
+      app.innerHTML = `
+        ${getHeaderHTML()}
+        ${getCustomerBarHTML()}
+        <div class="error-banner">
+          ⚠️ ${message}
+        </div>
+      `;
+    }
+
+    function renderOrdersView() {
+      if (currentOrders.length === 0) {
+        renderEmptyState('No orders found', 'This customer has no orders yet.');
+        return;
+      }
+
+      const totalSpent = currentOrders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
+      const currency = currentOrders[0]?.currency || 'SAR';
+
+      app.innerHTML = `
+        ${getHeaderHTML()}
+        ${getCustomerBarHTML()}
+        <div class="summary">
+          <div class="summary-card">
+            <div class="value">${currentOrders.length}</div>
+            <div class="label">Orders</div>
+          </div>
+          <div class="summary-card">
+            <div class="value">${totalSpent.toFixed(2)}</div>
+            <div class="label">Total (${currency})</div>
+          </div>
+        </div>
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${currentOrders.map((order) => `
+              <tr>
+                <td class="order-id">#${order.id}</td>
+                <td>${order.total} ${order.currency || 'SAR'}</td>
+                <td><span class="status-badge status-${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span></td>
+                <td>${order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}</td>
+                <td>
+                  <button
+                    class="btn btn-danger"
+                    data-refund="${order.id}"
+                    onclick="window.__handleRefund('${order.id}', ${parseFloat(order.total || 0)})"
+                  >
+                    ↩ Refund
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderCustomerBar() {
+      const bar = document.querySelector('.customer-bar');
+      if (bar) bar.outerHTML = getCustomerBarHTML();
+    }
+
+    function getHeaderHTML() {
+      const status = dashboard.isConnected ? 'connected' : 'loading';
+      const label = dashboard.isConnected ? 'Connected' : 'Connecting...';
+      return `
+        <div class="header">
+          <h1>🛒 Shopify Orders</h1>
+          <span class="badge badge-${status}">${label}</span>
+        </div>
+      `;
+    }
+
+    function getCustomerBarHTML() {
+      if (!currentCustomer?.customer) return '';
+      const c = currentCustomer.customer;
+      const initials = ((c.firstName?.[0] || '') + (c.lastName?.[0] || '')).toUpperCase() || '?';
+      const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || 'Unknown';
+      return `
+        <div class="customer-bar">
+          <div class="avatar">${initials}</div>
+          <div class="info">
+            <div class="name">${name}</div>
+            <div class="email">${c.primaryEmail || '—'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Expose refund handler globally for onclick
+    window.__handleRefund = handleRefund;
+  </script>
+</body>
+</html>
