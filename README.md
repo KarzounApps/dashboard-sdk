@@ -630,4 +630,305 @@ A complete example showing how to build an orders panel:
 ```typescript
 import { createDashboard } from '@octobots/dashboard-sdk';
 
-const dashboard = createDas
+const dashboard = createDashboard({ debug: true });
+
+dashboard.init({
+  onReady: async () => {
+    const customer = dashboard.getCustomerContext();
+    if (!customer?.customer.primaryEmail) {
+      showEmptyState('No customer email found');
+      return;
+    }
+
+    await loadOrders(customer.customer.primaryEmail);
+  },
+});
+
+// Reload when conversation switches
+dashboard.onConversationUpdate(async () => {
+  const customer = dashboard.getCustomerContext();
+  if (customer?.customer.primaryEmail) {
+    await loadOrders(customer.customer.primaryEmail);
+  }
+});
+
+async function loadOrders(email: string) {
+  showLoading();
+
+  const result = await dashboard.executeAction('listOrders', {
+    email,
+    limit: '10',
+  });
+
+  if (result.success) {
+    renderOrderTable(result.data as { orders: Order[] });
+  } else {
+    showError(result.error?.message ?? 'Failed to load orders');
+  }
+}
+
+async function handleRefund(orderId: string, amount: number) {
+  const result = await dashboard.executeAction('createRefund', {
+    orderId,
+    amount: String(amount),
+    reason: 'Customer requested',
+  });
+
+  if (result.success) {
+    dashboard.showToast('Refund created successfully', 'success');
+    await dashboard.addNote(
+      `Refund of ${amount} SAR issued for order #${orderId}`
+    );
+    // Reload orders
+    const ctx = dashboard.getCustomerContext();
+    if (ctx?.customer.primaryEmail) {
+      await loadOrders(ctx.customer.primaryEmail);
+    }
+  } else {
+    dashboard.showToast(result.error?.message ?? 'Refund failed', 'error');
+  }
+}
+```
+
+### Using with React
+
+```tsx
+import { useEffect, useRef, useState } from 'react';
+import { createDashboard, type CustomerContext, type ActionResult } from '@octobots/dashboard-sdk';
+
+function OrdersPanel() {
+  const dashRef = useRef(createDashboard());
+  const [customer, setCustomer] = useState<CustomerContext | null>(null);
+  const [orders, setOrders] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const dash = dashRef.current;
+
+    dash.init({
+      onReady: async () => {
+        const ctx = dash.getCustomerContext();
+        setCustomer(ctx);
+        if (ctx?.customer.primaryEmail) {
+          setLoading(true);
+          const result = await dash.executeAction('listOrders', {
+            email: ctx.customer.primaryEmail,
+          });
+          if (result.success) setOrders((result.data as any)?.orders ?? []);
+          setLoading(false);
+        }
+      },
+    });
+
+    dash.onCustomerContextUpdate(setCustomer);
+
+    return () => dash.destroy();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (!customer) return <div>No customer data</div>;
+
+  return (
+    <div>
+      <h2>Orders for {customer.customer.primaryEmail}</h2>
+      <ul>
+        {orders.map((order: any) => (
+          <li key={order.id}>
+            #{order.id} — {order.total} {order.currency}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### Zid Orders Panel (Arabic/RTL)
+
+The Zid example demonstrates the same pattern with Arabic UI, RTL layout, and multiple backend actions:
+
+```javascript
+import { createDashboard } from '@octobots/dashboard-sdk';
+
+const dashboard = createDashboard({ debug: true });
+
+dashboard.init({
+  onReady: async () => {
+    const ctx = dashboard.getCustomerContext();
+    const phone = ctx?.customer?.primaryPhone;
+
+    if (phone) {
+      // 1. Find customer by phone
+      const customerResult = await dashboard.executeAction('searchCustomerByPhone', {
+        telephone: phone,
+      });
+
+      if (customerResult.success && customerResult.data?.customers?.[0]) {
+        const customerId = customerResult.data.customers[0].id;
+
+        // 2. Get their orders
+        const ordersResult = await dashboard.executeAction('listOrdersByCustomer', {
+          customer_id: String(customerId),
+          page: '1',
+          per_page: '10',
+        });
+
+        if (ordersResult.success) {
+          renderOrders(ordersResult.data.orders);
+        }
+      }
+    }
+  },
+});
+```
+
+See the full [Zid example](./examples/zid-orders-panel/index.html) for the complete implementation including search, products table, invoice breakdown, shipping details, and address display.
+
+### Vanilla JS (Script Tag)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Dashboard App</title>
+</head>
+<body>
+  <div id="app">Loading...</div>
+  <script type="module">
+    import { createDashboard } from 'https://unpkg.com/@octobots/dashboard-sdk/dist/index.js';
+
+    const dashboard = createDashboard();
+
+    dashboard.init({
+      onReady: () => {
+        const ctx = dashboard.getCustomerContext();
+        document.getElementById('app').textContent =
+          'Customer: ' + (ctx?.customer?.primaryEmail || 'Unknown');
+      },
+    });
+  </script>
+</body>
+</html>
+```
+
+---
+
+## Security Model
+
+The SDK is designed with a **zero-trust iframe** model:
+
+1. **Credentials never reach the iframe.** The iframe sends action names + user-supplied form values. The backend injects stored OAuth/API key credentials server-side.
+
+2. **Origin validation.** The host validates `event.origin` on every incoming postMessage against the dashboard app's registered iframe URL.
+
+3. **Action allowlisting.** Admins configure which actions each dashboard app can access (via the "Allowed Actions" field). The host enforces this before proxying.
+
+4. **Rate limiting.** Both client-side (host bridge: 30 req/min per iframe) and server-side (Redis sliding window: 30 req/min per user+app) rate limiting are enforced.
+
+5. **Server-side validation.** Required form fields are validated on the server before execution. The action must exist in the miniapp definition.
+
+6. **Automatic token refresh.** If an OAuth2 token is expired (401 response), the backend attempts a single token refresh and retry before returning `AUTH_EXPIRED`.
+
+7. **Response filtering.** Response data is filtered through the action's mapping schema — only explicitly mapped fields are returned to the iframe.
+
+8. **Audit logging.** All action executions are logged with user ID, app namespace, action name, success/failure, error code, and duration.
+
+9. **Sandboxed iframe.** The host renders iframes with `sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"` and `allow="clipboard-write; clipboard-read"` — no top-navigation, no arbitrary storage access.
+
+---
+
+## Troubleshooting
+
+### "Connecting..." badge never turns green
+
+- The iframe must call `dashboard.init()` for the host to start sending data.
+- Check the browser console for postMessage errors. Enable `debug: true` in `createDashboard()` to see all traffic.
+- Make sure the iframe URL is accessible (not blocked by CORS or network issues).
+
+### `AUTH_EXPIRED` errors
+
+- The miniapp's stored credentials have expired. Go to **Settings → MiniApps**, find the miniapp, and reconnect/re-authenticate.
+- For OAuth2 miniapps, the backend attempts automatic token refresh. If that fails, manual re-auth is needed.
+
+### `ACTION_NOT_FOUND` errors
+
+- The action name you're calling doesn't match any action defined in the linked miniapp.
+- Check `dashboard.getActions()` to see which actions are available.
+- If the dashboard app has an "Allowed Actions" filter, make sure your action is in the list.
+
+### `RATE_LIMITED` errors
+
+- The default limit is 30 requests/minute per user+app. Wait before retrying.
+- The error includes `retryable: true` — your app should show a "please wait" message.
+
+### Actions return empty/unexpected data
+
+- Response data is filtered through the action's **mapping schema**. Only explicitly mapped fields are returned.
+- Check the miniapp's action definition to see which fields are mapped.
+- Enable `debug: true` to log the raw response.
+
+### Customer context is null
+
+- Customer context is resolved from the current conversation's linked customer. If the conversation has no customer, `getCustomerContext()` returns `null`.
+- Customer context is sent asynchronously — use `onCustomerContextUpdate()` to react when it arrives.
+
+### Iframe shows blank / security errors
+
+- The host sets `sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"`. If your app needs features not in this list, it won't work.
+- `allow-top-navigation` is intentionally not set — your iframe cannot redirect the parent page.
+
+---
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build (ESM + CJS + types)
+npm run build
+
+# Watch mode
+npm run dev
+
+# Typecheck
+npm run typecheck
+
+# Run examples locally
+npx vite
+# Open http://localhost:5173/examples/shopify-orders-panel/index.html
+# Or   http://localhost:5173/examples/zid-orders-panel/index.html
+```
+
+### Build Output
+
+```
+dist/
+├── index.js       # ESM (3.8 KB)
+├── index.cjs      # CommonJS (3.8 KB)
+├── index.d.ts     # TypeScript declarations
+├── index.d.cts    # CTS declarations
+└── *.map          # Source maps
+```
+
+---
+
+## Changelog
+
+### 1.0.0
+
+- Initial release
+- `createDashboard()` factory with full lifecycle management
+- Promise-based `executeAction()` with request/response correlation
+- Context subscriptions: conversation, customer, capabilities
+- Host action helpers: `showToast()`, `addNote()`, `addTag()`, `openCustomer()`
+- Automatic heartbeat for connection monitoring
+- TypeScript types for all public APIs
+- ESM + CJS dual-format build
+- Two complete examples (Shopify orders, Zid orders)
+
+---
+
+## License
+
+MIT © [KarzounApps](https://github.com/KarzounApps)
