@@ -8,7 +8,15 @@ Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. P
 
 ## Table of Contents
 
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Step 1: Install a MiniApp](#step-1-install-a-miniapp)
+  - [Step 2: Create a Dashboard App](#step-2-create-a-dashboard-app)
+  - [Step 3: Build Your Iframe App](#step-3-build-your-iframe-app)
 - [How It Works](#how-it-works)
+  - [Architecture](#architecture)
+  - [How Actions Work](#how-actions-work)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
@@ -21,12 +29,72 @@ Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. P
 - [PostMessage Protocol](#postmessage-protocol)
 - [TypeScript Types](#typescript-types)
 - [Examples](#examples)
+  - [Shopify Orders Panel](#shopify-orders-panel)
+  - [Zid Orders Panel (Arabic/RTL)](#zid-orders-panel-arabicrtl)
+  - [Using with React](#using-with-react)
+  - [Vanilla JS (Script Tag)](#vanilla-js-script-tag)
 - [Security Model](#security-model)
+- [Troubleshooting](#troubleshooting)
 - [Development](#development)
+- [Changelog](#changelog)
+
+---
+
+## Overview
+
+**Dashboard Apps** are custom panels that appear in the Octobots Inbox conversation sidebar. They let agents interact with external platforms (Shopify, Zid, Salla, custom APIs) without leaving the conversation — viewing orders, issuing refunds, checking shipping, and more.
+
+This SDK is the **client-side library** your iframe app uses to communicate with the Octobots host. It handles:
+
+- **Receiving conversation & customer context** — know who the agent is talking to
+- **Executing authenticated actions** — call external APIs via stored credentials (never exposed to your code)
+- **Triggering host UI actions** — show toasts, add notes, add tags, navigate to customer profiles
+- **Subscribing to updates** — react to conversation switches, new messages, and context changes
+
+---
+
+## Prerequisites
+
+Before you start building a dashboard app, you need:
+
+1. **An Octobots account** with admin access to Settings
+2. **A MiniApp installed and configured** with valid credentials (OAuth2 or API keys) — this is the backend that defines the actions your iframe can call
+3. **A hosted web page** (your iframe app) — can be any static host: Vercel, Netlify, Cloudflare Pages, your own server, or even `localhost` during development
+
+---
+
+## Getting Started
+
+### Step 1: Install a MiniApp
+
+Go to **Settings → MiniApps** in your Octobots dashboard. Find and install the miniapp for your external platform (e.g., Shopify, Zid, Salla). Follow the setup wizard to connect your store credentials.
+
+Once installed, the miniapp defines **actions** — named API operations like `listOrders`, `getOrderDetails`, `createRefund`, etc. These are what your iframe will call through the SDK.
+
+### Step 2: Create a Dashboard App
+
+Go to **Settings → Dashboard Apps** and create a new app:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Display name shown in the inbox sidebar tab |
+| **Iframe URL** | Full URL to your hosted iframe app (e.g., `https://my-app.vercel.app`) |
+| **Linked MiniApp** | Select the miniapp whose actions this dashboard should use |
+| **Allowed Actions** | (Optional) Restrict which actions this dashboard can call. Leave empty to allow all. |
+
+Once created, the dashboard app tab appears in the Inbox conversation panel for all agents.
+
+### Step 3: Build Your Iframe App
+
+Install the SDK, initialize it, and start calling actions. See [Quick Start](#quick-start) below.
+
+> **Tip:** During development, set the iframe URL to `http://localhost:5173` (or whichever port your dev server uses). The host bridge works with any origin.
 
 ---
 
 ## How It Works
+
+### Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -58,10 +126,45 @@ Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. P
 Your iframe sends **action names + user input**. The Octobots backend:
 1. Looks up the stored OAuth/API key credentials for the miniapp
 2. Builds the HTTP request (injecting credentials server-side)
-3. Executes it against the external API (Shopify, Salla, etc.)
-4. Returns the response to your iframe
+3. Executes it against the external API (Shopify, Salla, Zid, etc.)
+4. Returns the filtered response to your iframe
 
 **Credentials never reach your iframe code.**
+
+### How Actions Work
+
+Every MiniApp defines **actions** — named API operations with a request template and an optional form schema.
+
+```
+Action: "listOrders"
+├── Request Template:
+│   GET https://api.example.com/orders?email={{email}}&limit={{limit}}
+│   Headers:
+│     Authorization: Bearer [[access_token]]    ← credential (server-side)
+│     X-Api-Key: [[api_key]]                    ← credential (server-side)
+│
+├── Form Schema:
+│   email:  { label: "Email", type: "text", rules: { required: true } }
+│   limit:  { label: "Limit", type: "number" }
+│
+└── Response Mapping:
+    orders → orders    (only mapped fields are returned)
+```
+
+**Placeholder types:**
+- `{{key}}` — **user-supplied values** from your `formInput` parameter
+- `[[key]]` — **stored credentials** injected server-side (never visible to your code)
+
+When you call `dashboard.executeAction('listOrders', { email: 'a@b.com', limit: '10' })`:
+
+1. Your iframe sends the action name + form values via postMessage
+2. The host bridge validates the action is allowed and form fields are valid
+3. The backend replaces `{{email}}` with `a@b.com` and `[[access_token]]` with the stored credential
+4. The HTTP request is sent to the external API
+5. The response is filtered through the mapping schema
+6. Your iframe receives the result
+
+If the OAuth token is expired, the backend **automatically attempts a token refresh** and retries once before returning an `AUTH_EXPIRED` error.
 
 ---
 
@@ -77,13 +180,18 @@ yarn add @octobots/dashboard-sdk
 
 ### CDN (Script Tag)
 
+For non-bundled environments, load the ESM build with a module script:
+
 ```html
-<script src="https://unpkg.com/@octobots/dashboard-sdk/dist/index.cjs"></script>
-<script>
-  // Available as window.OctobotsDashboard
-  const dashboard = OctobotsDashboard.createDashboard();
+<script type="module">
+  import { createDashboard } from 'https://unpkg.com/@octobots/dashboard-sdk/dist/index.js';
+
+  const dashboard = createDashboard();
+  dashboard.init({ onReady: () => console.log('Ready!') });
 </script>
 ```
+
+> **Note:** The SDK ships as ESM + CJS. For a `<script>` without `type="module"`, use a bundler or include an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap).
 
 ---
 
@@ -500,6 +608,21 @@ import type {
 
 ## Examples
 
+Full working examples are in the [`examples/`](./examples) directory:
+
+| Example | Description | Language |
+|---------|-------------|----------|
+| [Shopify Orders Panel](./examples/shopify-orders-panel/) | English LTR · Order list, refunds, customer context | Vanilla JS (ESM) |
+| [Zid Orders Panel](./examples/zid-orders-panel/) | Arabic RTL · Order search, invoice, shipping, products | Vanilla JS (ESM) |
+
+To run an example locally:
+
+```bash
+npx vite
+# Open: http://localhost:5173/examples/shopify-orders-panel/index.html
+# Or:   http://localhost:5173/examples/zid-orders-panel/index.html
+```
+
 ### Shopify Orders Panel
 
 A complete example showing how to build an orders panel:
@@ -507,194 +630,4 @@ A complete example showing how to build an orders panel:
 ```typescript
 import { createDashboard } from '@octobots/dashboard-sdk';
 
-const dashboard = createDashboard({ debug: true });
-
-dashboard.init({
-  onReady: async () => {
-    const customer = dashboard.getCustomerContext();
-    if (!customer?.customer.primaryEmail) {
-      showEmptyState('No customer email found');
-      return;
-    }
-
-    await loadOrders(customer.customer.primaryEmail);
-  },
-});
-
-// Reload when conversation switches
-dashboard.onConversationUpdate(async () => {
-  const customer = dashboard.getCustomerContext();
-  if (customer?.customer.primaryEmail) {
-    await loadOrders(customer.customer.primaryEmail);
-  }
-});
-
-async function loadOrders(email: string) {
-  showLoading();
-
-  const result = await dashboard.executeAction('listOrders', {
-    email,
-    limit: '10',
-  });
-
-  if (result.success) {
-    renderOrderTable(result.data as { orders: Order[] });
-  } else {
-    showError(result.error?.message ?? 'Failed to load orders');
-  }
-}
-
-async function handleRefund(orderId: string, amount: number) {
-  const result = await dashboard.executeAction('createRefund', {
-    orderId,
-    amount: String(amount),
-    reason: 'Customer requested',
-  });
-
-  if (result.success) {
-    dashboard.showToast('Refund created successfully', 'success');
-    await dashboard.addNote(
-      `Refund of ${amount} SAR issued for order #${orderId}`
-    );
-    // Reload orders
-    const ctx = dashboard.getCustomerContext();
-    if (ctx?.customer.primaryEmail) {
-      await loadOrders(ctx.customer.primaryEmail);
-    }
-  } else {
-    dashboard.showToast(result.error?.message ?? 'Refund failed', 'error');
-  }
-}
-```
-
-### Using with React
-
-```tsx
-import { useEffect, useRef, useState } from 'react';
-import { createDashboard, type CustomerContext, type ActionResult } from '@octobots/dashboard-sdk';
-
-function OrdersPanel() {
-  const dashRef = useRef(createDashboard());
-  const [customer, setCustomer] = useState<CustomerContext | null>(null);
-  const [orders, setOrders] = useState<unknown[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const dash = dashRef.current;
-
-    dash.init({
-      onReady: async () => {
-        const ctx = dash.getCustomerContext();
-        setCustomer(ctx);
-        if (ctx?.customer.primaryEmail) {
-          setLoading(true);
-          const result = await dash.executeAction('listOrders', {
-            email: ctx.customer.primaryEmail,
-          });
-          if (result.success) setOrders((result.data as any)?.orders ?? []);
-          setLoading(false);
-        }
-      },
-    });
-
-    dash.onCustomerContextUpdate(setCustomer);
-
-    return () => dash.destroy();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (!customer) return <div>No customer data</div>;
-
-  return (
-    <div>
-      <h2>Orders for {customer.customer.primaryEmail}</h2>
-      <ul>
-        {orders.map((order: any) => (
-          <li key={order.id}>
-            #{order.id} — {order.total} {order.currency}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-### Vanilla JS (Script Tag)
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <title>My Dashboard App</title>
-  <script src="https://unpkg.com/@octobots/dashboard-sdk/dist/index.cjs"></script>
-</head>
-<body>
-  <div id="app">Loading...</div>
-  <script>
-    var dashboard = OctobotsDashboard.createDashboard();
-
-    dashboard.init({
-      onReady: function () {
-        var ctx = dashboard.getCustomerContext();
-        document.getElementById('app').textContent =
-          'Customer: ' + (ctx?.customer?.primaryEmail || 'Unknown');
-      },
-    });
-  </script>
-</body>
-</html>
-```
-
----
-
-## Security Model
-
-The SDK is designed with a **zero-trust iframe** model:
-
-1. **Credentials never reach the iframe.** The iframe sends action names + user-supplied form values. The backend injects stored OAuth/API key credentials server-side.
-
-2. **Origin validation.** The host validates `event.origin` on every incoming postMessage against the dashboard app's registered URL.
-
-3. **Action allowlisting.** Admins configure which actions each dashboard app can access. The host enforces this before proxying.
-
-4. **Rate limiting.** The host applies a sliding-window rate limit (30 req/min default) per iframe session.
-
-5. **Server-side validation.** Required form fields are validated on the server before execution.
-
-6. **Sandboxed iframe.** The host renders iframes with `sandbox="allow-scripts allow-same-origin allow-forms"` — no top-navigation, no popups to parent.
-
----
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build (ESM + CJS + types)
-npm run build
-
-# Watch mode
-npm run dev
-
-# Typecheck
-npm run typecheck
-```
-
-### Build Output
-
-```
-dist/
-├── index.js       # ESM (3.8 KB)
-├── index.cjs      # CommonJS (3.8 KB)
-├── index.d.ts     # TypeScript declarations
-├── index.d.cts    # CTS declarations
-└── *.map          # Source maps
-```
-
----
-
-## License
-
-MIT © [KarzounApps](https://github.com/KarzounApps)
+const dashboard = createDas
