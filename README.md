@@ -1,6 +1,6 @@
-# @octobots/dashboard-sdk
+# @karzoun/dashboard-sdk
 
-Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions — all without exposing credentials to the iframe.
+Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions — all without exposing credentials to the iframe.
 
 **3.8 KB** minified · Zero dependencies · TypeScript-first · ESM + CJS
 
@@ -30,7 +30,7 @@ Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. P
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  Octobots Inbox — Conversation Panel                         │
+│  Karzoun Inbox — Conversation Panel                         │
 │  ┌─────────────────────────────────────────────────────────┐  │
 │  │  YOUR IFRAME APP                                        │  │
 │  │  ┌──────────────────────────────────────────────────┐   │  │
@@ -55,7 +55,7 @@ Lightweight SDK for building **Octobots dashboard panel apps** inside iframes. P
 └───────────────────────────────────────────────────────────────┘
 ```
 
-Your iframe sends **action names + user input**. The Octobots backend:
+Your iframe sends **action names + user input**. The Karzoun backend:
 1. Looks up the stored OAuth/API key credentials for the miniapp
 2. Builds the HTTP request (injecting credentials server-side)
 3. Executes it against the external API (Shopify, Salla, etc.)
@@ -70,18 +70,18 @@ Your iframe sends **action names + user input**. The Octobots backend:
 ### NPM / Yarn
 
 ```bash
-npm install @octobots/dashboard-sdk
+npm install @karzoun/dashboard-sdk
 # or
-yarn add @octobots/dashboard-sdk
+yarn add @karzoun/dashboard-sdk
 ```
 
 ### CDN (Script Tag)
 
 ```html
-<script src="https://unpkg.com/@octobots/dashboard-sdk/dist/index.cjs"></script>
+<script src="https://unpkg.com/@karzoun/dashboard-sdk/dist/index.cjs"></script>
 <script>
-  // Available as window.OctobotsDashboard
-  const dashboard = OctobotsDashboard.createDashboard();
+  // Available as window.KarzounDashboard
+  const dashboard = KarzounDashboard.createDashboard();
 </script>
 ```
 
@@ -90,7 +90,7 @@ yarn add @octobots/dashboard-sdk
 ## Quick Start
 
 ```typescript
-import { createDashboard } from '@octobots/dashboard-sdk';
+import { createDashboard } from '@karzoun/dashboard-sdk';
 
 const dashboard = createDashboard();
 
@@ -155,7 +155,7 @@ const dashboard = createDashboard({
 | `debug` | `boolean` | `false` | Log all postMessage traffic to console |
 | `onError` | `(msg: string) => void` | — | Called on fatal errors |
 
-**Returns:** `OctobotsDashboard`
+**Returns:** `KarzounDashboard`
 
 ---
 
@@ -339,7 +339,7 @@ const statuses = await dashboard.getSourceData('orderStatuses');
 
 ### Host Actions
 
-Trigger UI actions in the Octobots host application from your iframe.
+Trigger UI actions in the Karzoun host application from your iframe.
 
 #### `dashboard.showToast(message, variant?)`
 
@@ -475,7 +475,7 @@ All types are exported from the package:
 
 ```typescript
 import type {
-  OctobotsDashboard,
+  KarzounDashboard,
   DashboardOptions,
   ConversationData,
   ConversationMessage,
@@ -493,7 +493,7 @@ import type {
   SourceItem,
   Unsubscribe,
   PostMessageEnvelope,
-} from '@octobots/dashboard-sdk';
+} from '@karzoun/dashboard-sdk';
 ```
 
 ---
@@ -505,7 +505,7 @@ import type {
 A complete example showing how to build an orders panel:
 
 ```typescript
-import { createDashboard } from '@octobots/dashboard-sdk';
+import { createDashboard } from '@karzoun/dashboard-sdk';
 
 const dashboard = createDashboard({ debug: true });
 
@@ -571,7 +571,7 @@ async function handleRefund(orderId: string, amount: number) {
 
 ```tsx
 import { useEffect, useRef, useState } from 'react';
-import { createDashboard, type CustomerContext, type ActionResult } from '@octobots/dashboard-sdk';
+import { createDashboard, type CustomerContext, type ActionResult } from '@karzoun/dashboard-sdk';
 
 function OrdersPanel() {
   const dashRef = useRef(createDashboard());
@@ -627,12 +627,12 @@ function OrdersPanel() {
 <html>
 <head>
   <title>My Dashboard App</title>
-  <script src="https://unpkg.com/@octobots/dashboard-sdk/dist/index.cjs"></script>
+  <script src="https://unpkg.com/@karzoun/dashboard-sdk/dist/index.cjs"></script>
 </head>
 <body>
   <div id="app">Loading...</div>
   <script>
-    var dashboard = OctobotsDashboard.createDashboard();
+    var dashboard = KarzounDashboard.createDashboard();
 
     dashboard.init({
       onReady: function () {

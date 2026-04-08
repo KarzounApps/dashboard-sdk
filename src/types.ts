@@ -1,8 +1,8 @@
 /**
- * @octobots/dashboard-sdk — Type definitions
+ * @karzoun/dashboard-sdk — Type definitions
  *
- * All public types for the Octobots Dashboard SDK.
- * These mirror the postMessage protocol between the host (Octobots inbox)
+ * All public types for the Karzoun Dashboard SDK.
+ * These mirror the postMessage protocol between the host (Karzoun inbox)
  * and the iframe (dashboard panel app).
  * @module
  */
@@ -201,10 +201,10 @@ export interface PostMessageEnvelope {
 }
 
 /**
- * The public interface of the Octobots Dashboard SDK.
+ * The public interface of the Karzoun Dashboard SDK.
  * Returned by `createDashboard()`.
  */
-export interface OctobotsDashboard {
+export interface KarzounDashboard {
   // ─── Lifecycle ─────────────────────────────────
 
   /** Initialize the SDK and signal readiness to the host. */

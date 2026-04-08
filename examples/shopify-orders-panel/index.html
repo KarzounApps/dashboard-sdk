@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shopify Orders Panel — Octobots Dashboard App Example</title>
+  <title>Shopify Orders Panel — Karzoun Dashboard App Example</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -195,15 +195,15 @@
   <div id="app">
     <div class="loading">
       <div class="spinner"></div>
-      <p>Connecting to Octobots...</p>
+      <p>Connecting to Karzoun...</p>
     </div>
   </div>
 
-  <!-- In production, use: <script src="https://unpkg.com/@octobots/dashboard-sdk"></script> -->
+  <!-- In production, use: <script src="https://unpkg.com/@karzoun/dashboard-sdk"></script> -->
   <!-- For development, we inline a minimal postMessage bridge -->
   <script type="module">
     // ─── Import SDK ─────────────────────────────────────────────────
-    // import { createDashboard } from '@octobots/dashboard-sdk';
+    // import { createDashboard } from '@karzoun/dashboard-sdk';
     //
     // For this example, we import from a relative path.
     // In a real app, use the npm package or CDN.
@@ -224,12 +224,12 @@
         currentCustomer = dashboard.getCustomerContext();
         renderCustomerBar();
 
-        if (!currentCustomer?.customer?.primaryEmail) {
+        if (!currentCustomer?.primaryEmail) {
           renderEmptyState('No customer email', 'This conversation has no linked customer email address.');
           return;
         }
 
-        await loadOrders(currentCustomer.customer.primaryEmail);
+        await loadOrders(currentCustomer.primaryEmail);
       },
     });
 
@@ -256,10 +256,10 @@
     async function loadOrders(email) {
       renderLoading('Loading orders...');
 
-      const result = await dashboard.executeAction('listOrders', {
+      const result = await dashboard.executeAction('get_list_orders', {
         email,
         limit: '10',
-      });
+      }); 
 
       if (result.success && result.data) {
         currentOrders = result.data.orders || [];

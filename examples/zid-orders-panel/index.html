@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="hsl(213 94% 50%)" />
+  <title>طلبات زد — لوحة كرزون</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── v4_ui Design Tokens (matches Karzoun light theme) ─────────── */
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 220 13% 18%;
+      --card: 0 0% 100%;
+      --card-foreground: 220 13% 18%;
+      --primary: 213 94% 50%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 220 14% 96%;
+      --secondary-foreground: 220 13% 18%;
+      --muted: 220 14% 96%;
+      --muted-foreground: 220 9% 46%;
+      --accent: 213 94% 96%;
+      --accent-foreground: 213 94% 50%;
+      --destructive: 0 84% 60%;
+      --destructive-foreground: 0 0% 100%;
+      --border: 220 13% 91%;
+      --input: 220 13% 91%;
+      --ring: 213 94% 50%;
+      --success: 142 71% 45%;
+      --success-foreground: 0 0% 100%;
+      --warning: 38 92% 50%;
+      --warning-foreground: 38 92% 20%;
+      --info: 213 94% 50%;
+      --radius: 0.5rem;
+      --font: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* ─── Reset ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      font-size: 13px;
+      color: hsl(var(--foreground));
+      background: hsl(var(--background));
+      line-height: 1.6;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    /* ─── Utilities ──────────────────────────────────────────────────── */
+    .text-xs { font-size: 11px; }
+    .text-sm { font-size: 12px; }
+    .text-base { font-size: 13px; }
+    .text-lg { font-size: 15px; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .text-muted { color: hsl(var(--muted-foreground)); }
+    .text-primary { color: hsl(var(--primary)); }
+    .text-success { color: hsl(var(--success)); }
+    .text-warning { color: hsl(var(--warning)); }
+    .text-destructive { color: hsl(var(--destructive)); }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; direction: ltr; }
+
+    /* ─── Layout ─────────────────────────────────────────────────────── */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .gap-1 { gap: 4px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .flex-1 { flex: 1; min-width: 0; }
+    .flex-wrap { flex-wrap: wrap; }
+    .w-full { width: 100%; }
+    .grid { display: grid; }
+    .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .col-span-full { grid-column: 1 / -1; }
+    .hidden { display: none; }
+    .shrink-0 { flex-shrink: 0; }
+
+    @media (max-width: 600px) {
+      .grid-cols-3 { grid-template-columns: 1fr; }
+      .grid-cols-2 { grid-template-columns: 1fr; }
+      .sm-hidden { display: none; }
+    }
+
+    /* ─── Card ───────────────────────────────────────────────────────── */
+    .card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+
+    .card-body { padding: 16px; }
+
+    /* ─── Badge ──────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+    .badge-primary { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+    .badge-success { background: hsl(142 71% 93%); color: hsl(142 71% 30%); }
+    .badge-warning { background: hsl(38 92% 93%); color: hsl(38 92% 30%); }
+    .badge-destructive { background: hsl(0 84% 95%); color: hsl(0 84% 40%); }
+    .badge-muted { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
+    .badge-connected { background: hsl(142 71% 93%); color: hsl(142 71% 30%); }
+    .badge-disconnected { background: hsl(0 84% 95%); color: hsl(0 84% 40%); }
+    .badge-loading { background: hsl(38 92% 93%); color: hsl(38 92% 30%); }
+
+    /* ─── Button ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: hsl(var(--card));
+      color: hsl(var(--foreground));
+      white-space: nowrap;
+    }
+    .btn:hover { background: hsl(var(--secondary)); border-color: hsl(var(--muted-foreground) / 0.3); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:active:not(:disabled) { transform: scale(0.98); }
+
+    .btn-primary {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      border-color: hsl(var(--primary));
+    }
+    .btn-primary:hover { filter: brightness(1.08); background: hsl(var(--primary)); }
+
+    .btn-ghost {
+      border-color: transparent;
+      background: transparent;
+    }
+    .btn-ghost:hover { background: hsl(var(--muted)); }
+
+    .btn-sm { padding: 3px 8px; font-size: 11px; }
+
+    /* ─── Input / Select ─────────────────────────────────────────────── */
+    .input, .select {
+      padding: 7px 12px;
+      border: 1px solid hsl(var(--input));
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+      background: hsl(var(--card));
+      color: hsl(var(--foreground));
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .input:focus, .select:focus {
+      outline: none;
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15);
+    }
+    .input::placeholder { color: hsl(var(--muted-foreground)); }
+
+    /* ─── Search Bar ─────────────────────────────────────────────────── */
+    .search-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+    @media (max-width: 500px) {
+      .search-bar { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Avatar ─────────────────────────────────────────────────────── */
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-lg { width: 44px; height: 44px; font-size: 15px; }
+
+    /* ─── Separator ──────────────────────────────────────────────────── */
+    .separator {
+      height: 1px;
+      background: hsl(var(--border));
+      border: none;
+      margin: 12px 0;
+    }
+
+    /* ─── Key-Value Row ──────────────────────────────────────────────── */
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      gap: 8px;
+    }
+    .kv-row + .kv-row { border-top: 1px solid hsl(var(--border) / 0.5); }
+    .kv-label { color: hsl(var(--muted-foreground)); font-size: 12px; flex-shrink: 0; }
+    .kv-value { font-weight: 600; font-size: 12px; text-align: left; direction: ltr; }
+
+    /* ─── Status Banner ──────────────────────────────────────────────── */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .status-banner.loading { background: hsl(38 92% 93%); color: hsl(38 92% 30%); }
+    .status-banner.success { background: hsl(142 71% 93%); color: hsl(142 71% 30%); }
+    .status-banner.error { background: hsl(0 84% 95%); color: hsl(0 84% 40%); }
+    .status-banner.info { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+
+    /* ─── Spinner ────────────────────────────────────────────────────── */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid hsl(var(--border));
+      border-top-color: hsl(var(--primary));
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    .spinner-lg { width: 28px; height: 28px; border-width: 3px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Empty State ────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: hsl(var(--muted-foreground));
+    }
+    .empty-state svg { margin: 0 auto 12px; opacity: 0.4; }
+    .empty-state h3 { font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 4px; }
+    .empty-state p { font-size: 12px; max-width: 280px; margin: 0 auto; }
+
+    /* ─── Loading Center ─────────────────────────────────────────────── */
+    .loading-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 48px 20px;
+      color: hsl(var(--muted-foreground));
+      font-size: 12px;
+    }
+
+    /* ─── Summary Cards ──────────────────────────────────────────────── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 400px) { .summary-grid { grid-template-columns: 1fr 1fr; } }
+
+    .summary-card {
+      background: hsl(var(--secondary));
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .summary-card .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: hsl(var(--foreground));
+      line-height: 1.2;
+    }
+    .summary-card .label {
+      font-size: 10px;
+      color: hsl(var(--muted-foreground));
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── Order Card ─────────────────────────────────────────────────── */
+    .order-card { margin-bottom: 12px; }
+
+    .order-card-header {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-card-header .order-id { font-size: 15px; font-weight: 700; }
+    .order-card-header .order-meta { font-size: 11px; opacity: 0.85; }
+    .order-card-header .order-status-badge {
+      background: hsl(0 0% 100% / 0.2);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ─── Customer Bar ───────────────────────────────────────────────── */
+    .customer-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: hsl(var(--secondary));
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+    .customer-bar .info { flex: 1; min-width: 0; }
+    .customer-bar .name { font-weight: 600; font-size: 13px; }
+    .customer-bar .meta { font-size: 11px; color: hsl(var(--muted-foreground)); }
+    .customer-bar .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ─── Products Table ─────────────────────────────────────────────── */
+    .table-scroll { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .products-table th {
+      text-align: right;
+      font-size: 10px;
+      font-weight: 600;
+      color: hsl(var(--muted-foreground));
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 6px 8px;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    .products-table td {
+      padding: 8px;
+      border-bottom: 1px solid hsl(var(--border) / 0.5);
+      vertical-align: top;
+    }
+    .products-table tr:hover td { background: hsl(var(--secondary) / 0.5); }
+
+    .product-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: calc(var(--radius) - 2px);
+      object-fit: cover;
+      border: 1px solid hsl(var(--border));
+      flex-shrink: 0;
+    }
+
+    /* ─── Section Heading ────────────────────────────────────────────── */
+    .section-heading {
+      font-size: 12px;
+      font-weight: 700;
+      color: hsl(var(--primary));
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .section-heading svg { width: 14px; height: 14px; }
+
+    /* ─── Invoice Total Row ──────────────────────────────────────────── */
+    .kv-row.total {
+      border-top: 2px solid hsl(var(--primary));
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+    .kv-row.total .kv-value { color: hsl(var(--primary)); font-weight: 700; }
+
+    /* ─── Animations ─────────────────────────────────────────────────── */
+    .fade-in {
+      animation: fadeIn 0.35s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Accordion ──────────────────────────────────────────────────── */
+    .accordion-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font);
+      color: inherit;
+    }
+    .accordion-trigger svg { transition: transform 0.2s; }
+    .accordion-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .accordion-content {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+    .accordion-content.open { max-height: 2000px; }
+
+    /* ─── Connection Dot ─────────────────────────────────────────────── */
+    .conn-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .conn-dot.connected { background: hsl(var(--success)); }
+    .conn-dot.loading { background: hsl(var(--warning)); animation: pulse 1.5s infinite; }
+    .conn-dot.disconnected { background: hsl(var(--destructive)); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading-center">
+      <div class="spinner spinner-lg"></div>
+      <span>جاري الاتصال بكرزون...</span>
+    </div>
+  </div>
+
+  <script type="module">
+    // ─── SDK Import ─────────────────────────────────────────────────────
+    // Production: import { createDashboard } from '@karzoun/dashboard-sdk';
+    import { createDashboard } from '../../src/index.ts';
+
+    const app = document.getElementById('app');
+    const dashboard = createDashboard({ debug: true });
+
+    // ─── State ──────────────────────────────────────────────────────────
+    let customer = null;
+    let orders = [];
+    let isSearching = false;
+    let connectionStatus = 'loading'; // loading | connected | disconnected
+
+    // ─── SVG Icons ──────────────────────────────────────────────────────
+    const icons = {
+      search: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+      package: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+      truck: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+      creditCard: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+      receipt: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>',
+      mapPin: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+      calendar: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+      copy: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+      externalLink: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+      chevronDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+      shoppingBag: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+      user: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      phone: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+      mail: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+      tag: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+    };
+
+    // ─── Initialize SDK ─────────────────────────────────────────────────
+    dashboard.init({
+      onReady: async () => {
+        connectionStatus = 'connected';
+        const ctx = dashboard.getCustomerContext();
+        customer = ctx;
+
+        renderShell();
+
+        // Auto-search if customer phone available
+        const phone = ctx?.customer?.primaryPhone;
+        if (phone) {
+          document.getElementById('searchValue').value = phone;
+          document.getElementById('searchType').value = 'telephone';
+          await searchOrders('telephone', phone);
+        }
+      },
+    });
+
+    // ─── Context Subscriptions ──────────────────────────────────────────
+    dashboard.onConversationUpdate(async () => {
+      const ctx = dashboard.getCustomerContext();
+      customer = ctx;
+      renderCustomerBar();
+
+      const phone = ctx?.customer?.primaryPhone;
+      if (phone) {
+        document.getElementById('searchValue').value = phone;
+        document.getElementById('searchType').value = 'telephone';
+        await searchOrders('telephone', phone);
+      }
+    });
+
+    dashboard.onCustomerContextUpdate((ctx) => {
+      customer = ctx;
+      renderCustomerBar();
+    });
+
+    // ─── Core: Search Orders ────────────────────────────────────────────
+    async function searchOrders(type, value) {
+      if (isSearching) return;
+      isSearching = true;
+      orders = [];
+      renderOrdersLoading();
+
+      let actionName, formInput;
+
+      if (type === 'telephone' && value) {
+        // Step 1: Find customer by phone
+        showBanner('جاري البحث عن العميل...', 'loading');
+        const customerResult = await dashboard.executeAction('searchCustomerByPhone', { telephone: value });
+
+        if (!customerResult.success || !customerResult.data?.customers?.length) {
+          showBanner('لم يتم العثور على عميل بهذا الرقم', 'error');
+          renderEmpty();
+          isSearching = false;
+          return;
+        }
+
+        const customerId = customerResult.data.customers[0].id;
+        actionName = 'listOrdersByCustomer';
+        formInput = { customer_id: String(customerId), page: '1', per_page: '10' };
+
+      } else if (type === 'order_number' && value) {
+        actionName = 'getOrderDetails';
+        formInput = { order_id: value };
+
+      } else {
+        // Recent orders
+        actionName = 'listRecentOrders';
+        formInput = { page: '1', per_page: '10' };
+      }
+
+      showBanner('جاري جلب الطلبات...', 'loading');
+
+      const result = await dashboard.executeAction(actionName, formInput);
+
+      if (!result.success) {
+        const code = result.error?.code;
+        if (code === 'AUTH_EXPIRED') {
+          showBanner('انتهت صلاحية المصادقة. يرجى إعادة ربط حساب زد من إعدادات التطبيقات المصغرة.', 'error');
+        } else {
+          showBanner(result.error?.message || 'فشل جلب الطلبات', 'error');
+        }
+        renderEmpty();
+        isSearching = false;
+        return;
+      }
+
+      // Handle different response shapes
+      const data = result.data;
+      let rawOrders = [];
+
+      if (data?.order) {
+        rawOrders = [data.order]; // single order detail
+      } else if (data?.orders) {
+        rawOrders = data.orders;
+      }
+
+      if (rawOrders.length === 0) {
+        showBanner('لم يتم العثور على طلبات', 'error');
+        renderEmpty();
+        isSearching = false;
+        return;
+      }
+
+      // Fetch detailed view for list results (optional — backend actions may already return details)
+      orders = rawOrders;
+      showBanner(`تم العثور على ${orders.length} طلب`, 'success');
+      renderOrders();
+      isSearching = false;
+
+      // Clear banner after delay
+      setTimeout(hideBanner, 4000);
+    }
+
+    // ─── Search Handler ─────────────────────────────────────────────────
+    function handleSearch(e) {
+      e.preventDefault();
+      const type = document.getElementById('searchType').value;
+      const value = document.getElementById('searchValue').value.trim();
+      searchOrders(type, value);
+    }
+
+    // ─── Renderers ──────────────────────────────────────────────────────
+
+    function renderShell() {
+      app.innerHTML = `
+        <div class="flex items-center justify-between" style="margin-bottom:10px;">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg">🛍️ طلبات زد</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="conn-dot ${connectionStatus}"></span>
+            <span class="text-xs text-muted">${connectionStatus === 'connected' ? 'متصل' : 'جاري الاتصال...'}</span>
+          </div>
+        </div>
+
+        ${getCustomerBarHTML()}
+
+        <form id="searchForm" class="search-bar" style="margin-bottom:10px;" onsubmit="return false;">
+          <select id="searchType" class="select" style="width:auto;min-width:140px;">
+            <option value="telephone">رقم الجوال</option>
+            <option value="order_number">رقم الطلب</option>
+          </select>
+          <input id="searchValue" class="input" placeholder="اترك فارغاً لعرض آخر الطلبات" />
+          <button id="searchBtn" class="btn btn-primary" type="submit">
+            ${icons.search} بحث
+          </button>
+        </form>
+
+        <div id="banner"></div>
+        <div id="ordersContainer"></div>
+      `;
+
+      document.getElementById('searchForm').addEventListener('submit', handleSearch);
+      document.getElementById('searchBtn').addEventListener('click', handleSearch);
+
+      // Pre-fill phone
+      const phone = customer?.customer?.primaryPhone;
+      if (phone) {
+        document.getElementById('searchValue').value = phone;
+        document.getElementById('searchType').value = 'telephone';
+      }
+    }
+
+    function renderCustomerBar() {
+      const bar = document.querySelector('.customer-bar');
+      if (bar) bar.outerHTML = getCustomerBarHTML();
+    }
+
+    function getCustomerBarHTML() {
+      if (!customer?.customer) return '';
+      const c = customer.customer;
+      const initials = ((c.firstName?.[0] || '') + (c.lastName?.[0] || '')).toUpperCase() || '?';
+      const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || 'عميل';
+      return `
+        <div class="customer-bar">
+          <div class="avatar">${initials}</div>
+          <div class="info">
+            <div class="name">${esc(name)}</div>
+            <div class="meta flex items-center gap-2">
+              ${c.primaryPhone ? `<span class="flex items-center gap-1">${icons.phone} <span class="mono">${esc(c.primaryPhone)}</span></span>` : ''}
+              ${c.primaryEmail ? `<span class="flex items-center gap-1">${icons.mail} ${esc(c.primaryEmail)}</span>` : ''}
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="window.__openCustomer()" title="عرض ملف العميل">${icons.user}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOrdersLoading() {
+      const container = document.getElementById('ordersContainer');
+      if (container) container.innerHTML = `
+        <div class="loading-center">
+          <div class="spinner spinner-lg"></div>
+          <span>جاري البحث عن الطلبات...</span>
+        </div>
+      `;
+    }
+
+    function renderEmpty() {
+      const container = document.getElementById('ordersContainer');
+      if (container) container.innerHTML = `
+        <div class="empty-state">
+          ${icons.shoppingBag}
+          <h3>لا توجد طلبات للعرض</h3>
+          <p>استخدم البحث أعلاه للعثور على الطلبات أو اتركه فارغاً لعرض آخر الطلبات</p>
+        </div>
+      `;
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('ordersContainer');
+      if (!container) return;
+
+      // Summary
+      const totalSpent = orders.reduce((sum, o) => sum + parseFloat(o.order_total || o.total || 0), 0);
+      const currency = orders[0]?.currency_code || 'SAR';
+      const paid = orders.filter(o => o.payment_status === 'paid').length;
+
+      container.innerHTML = `
+        <div class="summary-grid fade-in">
+          <div class="summary-card">
+            <div class="value">${orders.length}</div>
+            <div class="label">طلبات</div>
+          </div>
+          <div class="summary-card">
+            <div class="value">${totalSpent.toFixed(2)}</div>
+            <div class="label">الإجمالي (${esc(currency)})</div>
+          </div>
+          <div class="summary-card">
+            <div class="value">${paid}/${orders.length}</div>
+            <div class="label">مدفوعة</div>
+          </div>
+        </div>
+        ${orders.map((o, i) => renderOrderCard(o, i)).join('')}
+      `;
+
+      // Bind accordion toggles
+      container.querySelectorAll('.accordion-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = container.querySelector(`#${btn.getAttribute('aria-controls')}`);
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          target.classList.toggle('open');
+        });
+      });
+    }
+
+    function renderOrderCard(order, idx) {
+      const orderStatus = order.order_status || {};
+      const customer = order.customer || {};
+      const shipping = order.shipping?.method || {};
+      const shippingAddr = order.shipping?.address || {};
+      const payment = order.payment?.method || {};
+      const invoice = order.payment?.invoice || [];
+      const products = order.products || [];
+      const coupon = order.coupon || {};
+      const detailId = `detail-${idx}`;
+
+      return `
+        <div class="card order-card fade-in" style="animation-delay:${idx * 60}ms;">
+          <div class="order-card-header">
+            <div>
+              <div class="order-id">طلب #${esc(order.id)}</div>
+              <div class="order-meta">${order.code ? `كود: ${esc(order.code)}` : ''} ${order.invoice_number ? `| فاتورة: ${esc(order.invoice_number)}` : ''}</div>
+            </div>
+            <span class="order-status-badge">${esc(orderStatus.name || 'غير محدد')}</span>
+          </div>
+
+          <div class="card-body">
+            <!-- Customer row -->
+            <div class="flex items-center gap-2" style="margin-bottom:10px;">
+              <div class="avatar" style="width:36px;height:36px;">
+                ${customer.avatar ? `<img src="${esc(customer.avatar)}" alt="" />` : (customer.name || '?')[0]}
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">${esc(customer.name || 'غير محدد')}</div>
+                <div class="text-xs text-muted flex items-center gap-2">
+                  ${customer.mobile ? `<span class="flex items-center gap-1">${icons.phone} <span class="mono">${esc(customer.mobile)}</span></span>` : ''}
+                  ${customer.email ? `<span class="flex items-center gap-1">${icons.mail} ${esc(customer.email)}</span>` : ''}
+                </div>
+              </div>
+              <div class="flex gap-1">
+                ${order.order_url ? `<button class="btn btn-ghost btn-sm" onclick="window.__copy('${esc(order.order_url)}')" title="نسخ رابط الطلب">${icons.copy}</button>` : ''}
+                ${order.payment_link ? `<button class="btn btn-ghost btn-sm" onclick="window.__copy('${esc(order.payment_link)}')" title="نسخ رابط الدفع">${icons.tag}</button>` : ''}
+              </div>
+            </div>
+
+            <!-- Quick info row -->
+            <div class="grid grid-cols-3 gap-2" style="margin-bottom:8px;">
+              <div class="kv-row" style="flex-direction:column;align-items:flex-start;padding:6px 8px;background:hsl(var(--secondary));border-radius:var(--radius);">
+                <span class="kv-label">تاريخ الطلب</span>
+                <span class="kv-value text-xs">${formatDate(order.created_at)}</span>
+              </div>
+              <div class="kv-row" style="flex-direction:column;align-items:flex-start;padding:6px 8px;background:hsl(var(--secondary));border-radius:var(--radius);">
+                <span class="kv-label">طريقة الدفع</span>
+                <span class="kv-value text-xs">${esc(payment.name || 'غير محدد')}</span>
+              </div>
+              <div class="kv-row" style="flex-direction:column;align-items:flex-start;padding:6px 8px;background:hsl(var(--secondary));border-radius:var(--radius);">
+                <span class="kv-label">الإجمالي</span>
+                <span class="kv-value text-xs text-primary font-bold">${esc(order.order_total_string || order.total || 'غير محدد')}</span>
+              </div>
+            </div>
+
+            <!-- Expandable details -->
+            <button class="accordion-trigger" aria-expanded="false" aria-controls="${detailId}">
+              <span class="text-xs font-semibold text-primary flex items-center gap-1">${icons.package} تفاصيل كاملة</span>
+              ${icons.chevronDown}
+            </button>
+            <div id="${detailId}" class="accordion-content">
+              <hr class="separator" />
+
+              <!-- Products -->
+              ${products.length > 0 ? `
+                <div class="section-heading">${icons.package} المنتجات (${products.length})</div>
+                <div class="table-scroll">
+                  <table class="products-table">
+                    <thead>
+                      <tr>
+                        <th>المنتج</th>
+                        <th style="text-align:center;">الكمية</th>
+                        <th style="text-align:center;">السعر</th>
+                        <th style="text-align:center;">الإجمالي</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${products.map(p => `
+                        <tr>
+                          <td>
+                            <div class="flex items-start gap-2">
+                              <img class="product-thumb" src="${p.images?.[0]?.origin || 'https://app.karzoun.chat/brand-assets/logo-thumb.png'}" alt="" />
+                              <div class="flex-1">
+                                <div class="font-semibold">${esc(p.name)}</div>
+                                ${p.sku ? `<div class="text-xs text-muted mono">SKU: ${esc(p.sku)}</div>` : ''}
+                              </div>
+                            </div>
+                          </td>
+                          <td style="text-align:center;">${p.quantity}</td>
+                          <td style="text-align:center;">${esc(p.price_string || '-')}</td>
+                          <td style="text-align:center;font-weight:600;">${esc(p.total_string || '-')}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+                <hr class="separator" />
+              ` : ''}
+
+              <div class="grid grid-cols-2 gap-3">
+                <!-- Payment & Invoice -->
+                <div>
+                  <div class="section-heading">${icons.creditCard} معلومات الدفع</div>
+                  <div class="kv-row"><span class="kv-label">الحالة</span><span class="kv-value"><span class="badge ${order.payment_status === 'paid' ? 'badge-success' : 'badge-warning'}">${order.payment_status === 'paid' ? 'مدفوع' : esc(order.payment_status || 'غير محدد')}</span></span></div>
+                  <div class="kv-row"><span class="kv-label">الطريقة</span><span class="kv-value text-xs">${esc(payment.name || '-')}</span></div>
+                  ${order.currency_code ? `<div class="kv-row"><span class="kv-label">العملة</span><span class="kv-value text-xs">${esc(order.currency_code)}</span></div>` : ''}
+                  ${order.transaction_reference ? `<div class="kv-row"><span class="kv-label">المرجع</span><span class="kv-value mono text-xs">${esc(order.transaction_reference)}</span></div>` : ''}
+
+                  ${invoice.length > 0 ? `
+                    <hr class="separator" />
+                    <div class="section-heading">${icons.receipt} الفاتورة</div>
+                    ${invoice.map((item, i) => `
+                      <div class="kv-row ${i === invoice.length - 1 ? 'total' : ''}">
+                        <span class="kv-label">${esc(item.title)}</span>
+                        <span class="kv-value text-xs" style="${item.value < 0 ? 'color:hsl(var(--success))' : ''}">${esc(item.value_string)}</span>
+                      </div>
+                    `).join('')}
+                  ` : ''}
+                </div>
+
+                <!-- Shipping -->
+                <div>
+                  <div class="section-heading">${icons.truck} الشحن</div>
+                  <div class="kv-row"><span class="kv-label">الشركة</span><span class="kv-value text-xs">${esc(shipping.name || '-')}</span></div>
+                  <div class="kv-row"><span class="kv-label">الحالة</span><span class="kv-value text-xs">${esc(shipping.order_shipping_status || orderStatus.name || '-')}</span></div>
+                  ${(shipping.tracking?.number || shipping.waybill_tracking_id) ? `
+                    <div class="kv-row">
+                      <span class="kv-label">رقم التتبع</span>
+                      <span class="kv-value flex items-center gap-1">
+                        <span class="mono text-xs">${esc(shipping.tracking?.number || shipping.waybill_tracking_id)}</span>
+                        <button class="btn btn-ghost btn-sm" style="padding:2px 4px;" onclick="window.__copy('${esc(shipping.tracking?.number || shipping.waybill_tracking_id)}')">${icons.copy}</button>
+                      </span>
+                    </div>
+                  ` : ''}
+                  ${shipping.estimated_delivery_time ? `<div class="kv-row"><span class="kv-label">التوصيل المتوقع</span><span class="kv-value text-xs">${esc(shipping.estimated_delivery_time)}</span></div>` : ''}
+
+                  ${shipping.tracking?.url || shipping.waybill ? `
+                    <div class="flex gap-1" style="margin-top:6px;">
+                      ${shipping.tracking?.url ? `<button class="btn btn-sm" onclick="window.open('${esc(shipping.tracking.url)}','_blank')">${icons.externalLink} تتبع</button>` : ''}
+                      ${shipping.waybill ? `<button class="btn btn-sm" onclick="window.open('${esc(shipping.waybill)}','_blank')">${icons.externalLink} البوليصة</button>` : ''}
+                    </div>
+                  ` : ''}
+
+                  ${shippingAddr.formatted_address || shippingAddr.city?.name ? `
+                    <hr class="separator" />
+                    <div class="section-heading">${icons.mapPin} عنوان التوصيل</div>
+                    ${shippingAddr.street ? `<div class="kv-row"><span class="kv-label">الشارع</span><span class="kv-value text-xs">${esc(shippingAddr.street)}</span></div>` : ''}
+                    ${shippingAddr.district ? `<div class="kv-row"><span class="kv-label">الحي</span><span class="kv-value text-xs">${esc(shippingAddr.district)}</span></div>` : ''}
+                    ${shippingAddr.city?.name ? `<div class="kv-row"><span class="kv-label">المدينة</span><span class="kv-value text-xs">${esc(shippingAddr.city.name)}</span></div>` : ''}
+                    ${shippingAddr.country?.name ? `<div class="kv-row"><span class="kv-label">الدولة</span><span class="kv-value text-xs">${esc(shippingAddr.country.name)}</span></div>` : ''}
+                    ${shippingAddr.meta?.short_address ? `<div class="kv-row"><span class="kv-label">المختصر</span><span class="kv-value text-xs">${esc(shippingAddr.meta.short_address)}</span></div>` : ''}
+                  ` : ''}
+                </div>
+              </div>
+
+              ${coupon.code ? `
+                <hr class="separator" />
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-primary">${icons.tag} كوبون: ${esc(coupon.code)}</span>
+                  ${coupon.name ? `<span class="text-xs text-muted">${esc(coupon.name)}</span>` : ''}
+                </div>
+              ` : ''}
+
+              ${order.source ? `
+                <div class="kv-row" style="margin-top:8px;"><span class="kv-label">مصدر الطلب</span><span class="kv-value text-xs">${esc(order.source)}</span></div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ─── Banner ─────────────────────────────────────────────────────────
+    function showBanner(msg, type) {
+      const banner = document.getElementById('banner');
+      if (!banner) return;
+      const iconHTML = type === 'loading' ? '<div class="spinner"></div>' :
+                       type === 'success' ? '✓' : '⚠';
+      banner.innerHTML = `<div class="status-banner ${type}">${iconHTML} <span>${msg}</span></div>`;
+    }
+
+    function hideBanner() {
+      const banner = document.getElementById('banner');
+      if (banner) banner.innerHTML = '';
+    }
+
+    // ─── Helpers ────────────────────────────────────────────────────────
+    function esc(str) {
+      if (str == null) return '';
+      const el = document.createElement('span');
+      el.textContent = String(str);
+      return el.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'غير محدد';
+      try {
+        return new Date(dateStr).toLocaleDateString('ar-SA', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        });
+      } catch { return dateStr; }
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          dashboard.showToast('تم النسخ بنجاح', 'success');
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        dashboard.showToast('تم النسخ بنجاح', 'success');
+      }
+    }
+
+    // ─── Global Handlers ────────────────────────────────────────────────
+    window.__copy = copyToClipboard;
+    window.__openCustomer = () => dashboard.openCustomer();
+    window.__handleSearch = handleSearch;
+  </script>
+</body>
+</html>

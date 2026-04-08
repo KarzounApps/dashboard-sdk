@@ -1,11 +1,11 @@
 /**
- * @octobots/dashboard-sdk — Core Implementation
+ * @karzoun/dashboard-sdk — Core Implementation
  *
  * `createDashboard()` factory that returns a fully-typed SDK instance
- * for building Octobots dashboard panel apps inside iframes.
+ * for building Karzoun dashboard panel apps inside iframes.
  *
  * Features:
- * - Bidirectional postMessage bridge with the host (Octobots inbox)
+ * - Bidirectional postMessage bridge with the host (Karzoun inbox)
  * - Promise-based action execution with request/response correlation
  * - Context subscriptions (conversation, customer, capabilities)
  * - Host action helpers (toast, note, tag, navigate)
@@ -24,7 +24,7 @@ import type {
   DashboardOptions,
   HostActionResult,
   HostActionType,
-  OctobotsDashboard,
+  KarzounDashboard,
   PostMessageEnvelope,
   SourceItem,
   ToastVariant,
@@ -69,17 +69,17 @@ function generateRequestId(): string {
 // ─── Factory ────────────────────────────────────────────────────────────────
 
 /**
- * Create an Octobots Dashboard SDK instance.
+ * Create an Karzoun Dashboard SDK instance.
  *
  * Call this from within an iframe that is embedded as a dashboard app
- * in the Octobots inbox conversation panel.
+ * in the Karzoun inbox conversation panel.
  *
  * @param options - Optional configuration (heartbeat interval, timeouts, debug).
- * @returns An `OctobotsDashboard` API object.
+ * @returns An `KarzounDashboard` API object.
  *
  * @example
  * ```ts
- * import { createDashboard } from '@octobots/dashboard-sdk';
+ * import { createDashboard } from '@karzoun/dashboard-sdk';
  *
  * const dashboard = createDashboard({ debug: true });
  *
@@ -96,7 +96,7 @@ function generateRequestId(): string {
  */
 export function createDashboard(
   options: DashboardOptions = {}
-): OctobotsDashboard {
+): KarzounDashboard {
   const {
     heartbeatInterval = DEFAULT_HEARTBEAT_INTERVAL,
     actionTimeout = DEFAULT_ACTION_TIMEOUT,
@@ -126,7 +126,7 @@ export function createDashboard(
    */
   function log(...args: unknown[]): void {
     if (debug) {
-      console.debug("[octobots-sdk]", ...args);
+      console.debug("[karzoun-sdk]", ...args);
     }
   }
 
@@ -144,7 +144,7 @@ export function createDashboard(
       try {
         cb(data);
       } catch (err) {
-        console.error(`[octobots-sdk] Error in ${event} listener:`, err);
+        console.error(`[karzoun-sdk] Error in ${event} listener:`, err);
       }
     }
   }
@@ -366,7 +366,7 @@ export function createDashboard(
 
   // ─── Public API ─────────────────────────────────────────────────────
 
-  const sdk: OctobotsDashboard = {
+  const sdk: KarzounDashboard = {
     // ── Lifecycle ───────────────────────────────────────────────
 
     init(initOpts) {

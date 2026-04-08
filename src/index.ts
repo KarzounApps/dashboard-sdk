@@ -1,13 +1,13 @@
 /**
- * @octobots/dashboard-sdk
+ * @karzoun/dashboard-sdk
  *
- * Lightweight SDK for building Octobots dashboard panel apps inside iframes.
+ * Lightweight SDK for building Karzoun dashboard panel apps inside iframes.
  * Provides a typed postMessage bridge for executing miniapp actions,
  * receiving conversation/customer context, and triggering host UI actions.
  *
  * @example
  * ```ts
- * import { createDashboard } from '@octobots/dashboard-sdk';
+ * import { createDashboard } from '@karzoun/dashboard-sdk';
  *
  * const dashboard = createDashboard();
  * dashboard.init({
@@ -24,7 +24,7 @@
 export { createDashboard } from "./dashboard";
 export type {
   // Core
-  OctobotsDashboard,
+  KarzounDashboard,
   DashboardOptions,
   Unsubscribe,
   PostMessageEnvelope,

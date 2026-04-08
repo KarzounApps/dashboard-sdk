@@ -11,5 +11,5 @@ export default defineConfig({
   splitting: false,
   target: "es2020",
   outDir: "dist",
-  globalName: "OctobotsDashboard",
+  globalName: "KarzounDashboard",
 });

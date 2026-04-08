@@ -1,7 +1,7 @@
 {
-  "name": "@octobots/dashboard-sdk",
+  "name": "@karzoun/dashboard-sdk",
   "version": "1.0.0",
-  "description": "Lightweight SDK for building Octobots dashboard panel apps. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions from sandboxed iframes.",
+  "description": "Lightweight SDK for building Karzoun dashboard panel apps. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions from sandboxed iframes.",
   "author": "KarzounApps",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,7 @@
   ],
   "sideEffects": false,
   "keywords": [
-    "octobots",
+    "karzoun",
     "dashboard",
     "iframe",
     "sdk",

@@ -1,0 +1,1 @@
+> npx vite --open examples/shopify-orders-panel
