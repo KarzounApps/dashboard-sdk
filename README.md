@@ -8,7 +8,15 @@ Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Pr
 
 ## Table of Contents
 
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Step 1: Install a MiniApp](#step-1-install-a-miniapp)
+  - [Step 2: Create a Dashboard App](#step-2-create-a-dashboard-app)
+  - [Step 3: Build Your Iframe App](#step-3-build-your-iframe-app)
 - [How It Works](#how-it-works)
+  - [Architecture](#architecture)
+  - [How Actions Work](#how-actions-work)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
@@ -21,12 +29,72 @@ Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Pr
 - [PostMessage Protocol](#postmessage-protocol)
 - [TypeScript Types](#typescript-types)
 - [Examples](#examples)
+  - [Shopify Orders Panel](#shopify-orders-panel)
+  - [Zid Orders Panel (Arabic/RTL)](#zid-orders-panel-arabicrtl)
+  - [Using with React](#using-with-react)
+  - [Vanilla JS (Script Tag)](#vanilla-js-script-tag)
 - [Security Model](#security-model)
+- [Troubleshooting](#troubleshooting)
 - [Development](#development)
+- [Changelog](#changelog)
+
+---
+
+## Overview
+
+**Dashboard Apps** are custom panels that appear in the Octobots Inbox conversation sidebar. They let agents interact with external platforms (Shopify, Zid, Salla, custom APIs) without leaving the conversation — viewing orders, issuing refunds, checking shipping, and more.
+
+This SDK is the **client-side library** your iframe app uses to communicate with the Octobots host. It handles:
+
+- **Receiving conversation & customer context** — know who the agent is talking to
+- **Executing authenticated actions** — call external APIs via stored credentials (never exposed to your code)
+- **Triggering host UI actions** — show toasts, add notes, add tags, navigate to customer profiles
+- **Subscribing to updates** — react to conversation switches, new messages, and context changes
+
+---
+
+## Prerequisites
+
+Before you start building a dashboard app, you need:
+
+1. **An Octobots account** with admin access to Settings
+2. **A MiniApp installed and configured** with valid credentials (OAuth2 or API keys) — this is the backend that defines the actions your iframe can call
+3. **A hosted web page** (your iframe app) — can be any static host: Vercel, Netlify, Cloudflare Pages, your own server, or even `localhost` during development
+
+---
+
+## Getting Started
+
+### Step 1: Install a MiniApp
+
+Go to **Settings → MiniApps** in your Octobots dashboard. Find and install the miniapp for your external platform (e.g., Shopify, Zid, Salla). Follow the setup wizard to connect your store credentials.
+
+Once installed, the miniapp defines **actions** — named API operations like `listOrders`, `getOrderDetails`, `createRefund`, etc. These are what your iframe will call through the SDK.
+
+### Step 2: Create a Dashboard App
+
+Go to **Settings → Dashboard Apps** and create a new app:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Display name shown in the inbox sidebar tab |
+| **Iframe URL** | Full URL to your hosted iframe app (e.g., `https://my-app.vercel.app`) |
+| **Linked MiniApp** | Select the miniapp whose actions this dashboard should use |
+| **Allowed Actions** | (Optional) Restrict which actions this dashboard can call. Leave empty to allow all. |
+
+Once created, the dashboard app tab appears in the Inbox conversation panel for all agents.
+
+### Step 3: Build Your Iframe App
+
+Install the SDK, initialize it, and start calling actions. See [Quick Start](#quick-start) below.
+
+> **Tip:** During development, set the iframe URL to `http://localhost:5173` (or whichever port your dev server uses). The host bridge works with any origin.
 
 ---
 
 ## How It Works
+
+### Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -58,10 +126,45 @@ Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Pr
 Your iframe sends **action names + user input**. The Karzoun backend:
 1. Looks up the stored OAuth/API key credentials for the miniapp
 2. Builds the HTTP request (injecting credentials server-side)
-3. Executes it against the external API (Shopify, Salla, etc.)
-4. Returns the response to your iframe
+3. Executes it against the external API (Shopify, Salla, Zid, etc.)
+4. Returns the filtered response to your iframe
 
 **Credentials never reach your iframe code.**
+
+### How Actions Work
+
+Every MiniApp defines **actions** — named API operations with a request template and an optional form schema.
+
+```
+Action: "listOrders"
+├── Request Template:
+│   GET https://api.example.com/orders?email={{email}}&limit={{limit}}
+│   Headers:
+│     Authorization: Bearer [[access_token]]    ← credential (server-side)
+│     X-Api-Key: [[api_key]]                    ← credential (server-side)
+│
+├── Form Schema:
+│   email:  { label: "Email", type: "text", rules: { required: true } }
+│   limit:  { label: "Limit", type: "number" }
+│
+└── Response Mapping:
+    orders → orders    (only mapped fields are returned)
+```
+
+**Placeholder types:**
+- `{{key}}` — **user-supplied values** from your `formInput` parameter
+- `[[key]]` — **stored credentials** injected server-side (never visible to your code)
+
+When you call `dashboard.executeAction('listOrders', { email: 'a@b.com', limit: '10' })`:
+
+1. Your iframe sends the action name + form values via postMessage
+2. The host bridge validates the action is allowed and form fields are valid
+3. The backend replaces `{{email}}` with `a@b.com` and `[[access_token]]` with the stored credential
+4. The HTTP request is sent to the external API
+5. The response is filtered through the mapping schema
+6. Your iframe receives the result
+
+If the OAuth token is expired, the backend **automatically attempts a token refresh** and retries once before returning an `AUTH_EXPIRED` error.
 
 ---
 
@@ -77,13 +180,18 @@ yarn add @karzoun/dashboard-sdk
 
 ### CDN (Script Tag)
 
+For non-bundled environments, load the ESM build with a module script:
+
 ```html
-<script src="https://unpkg.com/@karzoun/dashboard-sdk/dist/index.cjs"></script>
-<script>
-  // Available as window.KarzounDashboard
-  const dashboard = KarzounDashboard.createDashboard();
+<script type="module">
+  import { createDashboard } from 'https://unpkg.com/@octobots/dashboard-sdk/dist/index.js';
+
+  const dashboard = createDashboard();
+  dashboard.init({ onReady: () => console.log('Ready!') });
 </script>
 ```
+
+> **Note:** The SDK ships as ESM + CJS. For a `<script>` without `type="module"`, use a bundler or include an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap).
 
 ---
 
@@ -499,6 +607,21 @@ import type {
 ---
 
 ## Examples
+
+Full working examples are in the [`examples/`](./examples) directory:
+
+| Example | Description | Language |
+|---------|-------------|----------|
+| [Shopify Orders Panel](./examples/shopify-orders-panel/) | English LTR · Order list, refunds, customer context | Vanilla JS (ESM) |
+| [Zid Orders Panel](./examples/zid-orders-panel/) | Arabic RTL · Order search, invoice, shipping, products | Vanilla JS (ESM) |
+
+To run an example locally:
+
+```bash
+npx vite
+# Open: http://localhost:5173/examples/shopify-orders-panel/index.html
+# Or:   http://localhost:5173/examples/zid-orders-panel/index.html
+```
 
 ### Shopify Orders Panel
 
