@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>طلبات زد — كرزون</title>
+  <meta name="theme-color" content="#1f93ff">
+  <meta name="description" content="لوحة طلبات زد — تطبيق خارجي بدون SDK مع مصادقة Zid الخاصة بك">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1f93ff;
+      --primary-dark: #1a7de8;
+      --surface: #f8fafc;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', system-ui, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 16px 20px 32px; }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .search-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgb(31 147 255 / 0.12);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .banner.is-visible { display: flex; }
+    .banner--loading { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .banner--success { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+    .banner--error { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    .banner--info { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+
+    .orders { display: flex; flex-direction: column; gap: 10px; }
+
+    .order-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+      overflow: hidden;
+    }
+
+    .order-card details[open] {
+      box-shadow: var(--shadow);
+      border-color: rgb(31 147 255 / 0.35);
+    }
+
+    .order-details-wrap > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .order-details-wrap > summary::-webkit-details-marker { display: none; }
+
+    .order-summary {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: #fff;
+      transition: background var(--transition);
+    }
+
+    .order-summary:hover { background: var(--surface); }
+
+    .order-summary-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      grid-column: 1 / -1;
+    }
+
+    .order-number {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .copy-chip {
+      border: none;
+      background: transparent;
+      font: inherit;
+      color: inherit;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .copy-chip:hover { color: var(--primary); }
+
+    .copy-chip.order-number {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .copy-chip.order-phone { font-size: 12px; }
+
+    .order-code {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .order-summary-customer {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .order-summary-bottom {
+      grid-column: 1 / 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .order-summary-total {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .order-status {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid rgb(31 147 255 / 0.25);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .order-chevron {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text-muted);
+      transition: transform var(--transition), background var(--transition);
+      flex-shrink: 0;
+    }
+
+    .order-details-wrap[open] .order-chevron {
+      transform: rotate(180deg);
+      background: rgb(31 147 255 / 0.1);
+      color: var(--primary);
+    }
+
+    .order-body {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .order-body-inner { padding-top: 16px; }
+
+    .customer-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    }
+
+    .customer-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .contact-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .customer-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .info-card h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); }
+    .info-value { font-weight: 600; text-align: left; }
+
+    .products-wrap { grid-column: 1 / -1; overflow-x: auto; }
+
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .products-table th,
+    .products-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .products-table th {
+      background: var(--surface);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .product-cell { display: flex; gap: 10px; min-width: 220px; }
+
+    .product-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius);
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .product-name { font-weight: 600; font-size: 13px; line-height: 1.35; }
+    .product-sku { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+
+    .invoice-total {
+      border-top: 2px solid var(--primary) !important;
+      padding-top: 10px !important;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg { width: 64px; height: 64px; opacity: 0.45; margin-bottom: 12px; }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgb(0 0 0 / 0.08);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 720px) {
+      .search-form { grid-template-columns: 1fr; }
+      .search-actions { width: 100%; }
+      .search-actions .btn { flex: 1; }
+      .customer-row { grid-template-columns: 1fr; text-align: center; }
+      .customer-actions { align-items: stretch; }
+      .order-summary {
+        grid-template-columns: 1fr auto;
+      }
+      .order-summary-total { grid-column: 1; }
+      .order-chevron { grid-row: 1 / 3; grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="panel" aria-label="البحث عن الطلبات">
+      <h2 class="panel-title">البحث عن الطلبات</h2>
+      <form id="searchForm" class="search-form">
+        <input
+          id="searchValue"
+          class="form-input"
+          type="text"
+          placeholder="رقم الطلب، الجوال، أو أي مصطلح بحث"
+          autocomplete="off"
+        >
+        <div class="search-actions">
+          <button id="searchBtn" type="submit" class="btn btn-primary" disabled>بحث</button>
+          <button id="latestBtn" type="button" class="btn btn-secondary">آخر الطلبات في المتجر</button>
+        </div>
+      </form>
+    </section>
+
+    <div id="banner" class="banner" role="status" aria-live="polite"></div>
+
+    <div id="ordersRoot" class="orders">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <h3>لا توجد طلبات للعرض</h3>
+        <p>ابحث برقم الطلب أو الجوال، أو اعرض آخر الطلبات في المتجر</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Zid Orders — Non-SDK Dashboard App
+     *
+     * For teams that manage Zid OAuth/tokens themselves (outside Karzoun miniapps).
+     *
+     * Host protocol (raw postMessage):
+     *   IN  — conversation_init | conversation_update (customer on conversation.customer)
+     *   IN  — auth_tokens (optional — pass Zid tokens from your own backend)
+     *   OUT — app_ready
+     *
+     * Auth (this app calls Zid API directly):
+     *   - URL params: ?access_token=...&authorization_token=...
+     *   - postMessage: { type: 'auth_tokens', data: { access_token, authorization_token } }
+     *
+     * Zid API:
+     *   GET /orders?page=1&per_page=15&search_term={term}
+     *   search_term matches order id, phone, and more in a single request.
+     *   Omit search_term for latest store orders (latest-orders button).
+     */
+    (function () {
+      'use strict';
+
+      var ZID_API = 'https://api.zid.sa/v1/managers/store';
+      var PAGE_SIZE = 15;
+
+      /** @type {Record<string, string>} */
+      var HOST_MESSAGE_TYPES = {
+        CONVERSATION_INIT: 'conversation_init',
+        CONVERSATION_UPDATE: 'conversation_update',
+        AUTH_TOKENS: 'auth_tokens',
+      };
+
+      var state = {
+        accessToken: '',
+        authToken: '',
+        lastAutoSearchTerm: null,
+        searchGeneration: 0,
+        isSearching: false,
+      };
+
+      var dom = {};
+
+      // ─── Bootstrap ───────────────────────────────────────────────────────
+
+      function init() {
+        cacheDom();
+        initTokensFromUrl();
+        bindEvents();
+        window.addEventListener('message', onHostMessage);
+        notifyHostReady();
+        renderEmptyState();
+        updateSearchControls();
+      }
+
+      function cacheDom() {
+        dom.searchForm = document.getElementById('searchForm');
+        dom.searchValue = document.getElementById('searchValue');
+        dom.searchBtn = document.getElementById('searchBtn');
+        dom.latestBtn = document.getElementById('latestBtn');
+        dom.banner = document.getElementById('banner');
+        dom.ordersRoot = document.getElementById('ordersRoot');
+      }
+
+      function bindEvents() {
+        dom.searchForm.addEventListener('submit', onSearchSubmit);
+        dom.latestBtn.addEventListener('click', onLatestOrdersClick);
+        dom.searchValue.addEventListener('input', updateSearchControls);
+        dom.ordersRoot.addEventListener('click', onOrdersClick);
+      }
+
+      function updateSearchControls() {
+        var hasTerm = !!normalizeSearchTerm(dom.searchValue.value);
+        dom.searchBtn.disabled = state.isSearching || !hasTerm;
+        dom.latestBtn.disabled = state.isSearching;
+      }
+
+      function initTokensFromUrl() {
+        var params = new URLSearchParams(window.location.search);
+        var access = params.get('access_token');
+        var auth = params.get('authorization_token');
+        if (access) state.accessToken = access;
+        if (auth) state.authToken = auth;
+      }
+
+      function notifyHostReady() {
+        postToHost({ type: 'app_ready', timestamp: Date.now() });
+      }
+
+      function postToHost(payload) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(payload, '*');
+        }
+      }
+
+      // ─── Host bridge ─────────────────────────────────────────────────────
+
+      function onHostMessage(event) {
+        var msg = event.data;
+        if (!msg || typeof msg !== 'object' || typeof msg.type !== 'string') return;
+
+        switch (msg.type) {
+          case HOST_MESSAGE_TYPES.CONVERSATION_INIT:
+          case HOST_MESSAGE_TYPES.CONVERSATION_UPDATE:
+            handleConversationPayload(msg.data);
+            break;
+
+          case HOST_MESSAGE_TYPES.AUTH_TOKENS:
+            applyAuthTokens(msg.data || msg);
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      function handleConversationPayload(data) {
+        var conv = data && data.conversation;
+        if (!conv) return;
+
+        var phone = normalizeSearchTerm(extractPhoneFromConversation(conv));
+        if (!phone || phone === state.lastAutoSearchTerm) return;
+
+        state.lastAutoSearchTerm = phone;
+        dom.searchValue.value = phone;
+        runSearch({ searchTerm: phone, auto: true });
+      }
+
+      function extractPhoneFromConversation(conv) {
+        var customer = conv.customer;
+        return (customer && customer.primaryPhone) || null;
+      }
+
+      function applyAuthTokens(payload) {
+        if (payload.access_token) state.accessToken = payload.access_token;
+        if (payload.authorization_token) state.authToken = payload.authorization_token;
+      }
+
+      // ─── Search ──────────────────────────────────────────────────────────
+
+      function onSearchSubmit(event) {
+        event.preventDefault();
+        var term = normalizeSearchTerm(dom.searchValue.value);
+        if (!term) {
+          showBanner('يرجى إدخال رقم الطلب أو الجوال أو مصطلح البحث', 'error');
+          updateSearchControls();
+          return;
+        }
+        dom.searchValue.value = term;
+        runSearch({ searchTerm: term, auto: false });
+      }
+
+      function onLatestOrdersClick() {
+        dom.searchValue.value = '';
+        state.lastAutoSearchTerm = null;
+        updateSearchControls();
+        runSearch({ mode: 'latest' });
+      }
+
+      function setSearching(active) {
+        state.isSearching = active;
+        updateSearchControls();
+      }
+
+      /**
+       * @param {{ searchTerm?: string, auto?: boolean, mode?: 'latest' }} opts
+       */
+      async function runSearch(opts) {
+        if (!hasAuth()) {
+          showBanner('رموز مصادقة Zid غير متوفرة. أضف access_token و authorization_token عبر الرابط أو postMessage.', 'error');
+          return;
+        }
+
+        if (state.isSearching) return;
+
+        var isLatest = opts.mode === 'latest';
+        var searchTerm = '';
+
+        if (isLatest) {
+          searchTerm = '';
+        } else {
+          searchTerm = normalizeSearchTerm(
+            opts.searchTerm !== undefined ? opts.searchTerm : dom.searchValue.value
+          );
+          if (!searchTerm) return;
+          dom.searchValue.value = searchTerm;
+        }
+
+        var generation = ++state.searchGeneration;
+        setSearching(true);
+
+        if (isLatest) {
+          showBanner('جاري جلب آخر الطلبات في المتجر...', 'loading');
+        } else {
+          showBanner(
+            opts.auto ? 'جاري البحث التلقائي عن طلبات العميل...' : 'جاري البحث...',
+            'loading'
+          );
+        }
+
+        try {
+          var orders = await fetchOrders(searchTerm);
+
+          if (generation !== state.searchGeneration) return;
+
+          if (orders.length === 0) {
+            renderEmptyState();
+            showBanner('لم يتم العثور على طلبات', 'error');
+            return;
+          }
+
+          renderOrders(orders);
+          showBanner('تم العثور على ' + orders.length + ' طلب', 'success');
+        } catch (err) {
+          if (generation !== state.searchGeneration) return;
+          console.error('[zid-orders]', err);
+          renderEmptyState();
+          showBanner(err.message || 'حدث خطأ أثناء البحث', 'error');
+        } finally {
+          if (generation === state.searchGeneration) {
+            setSearching(false);
+          }
+        }
+      }
+
+      function hasAuth() {
+        return !!(state.accessToken && state.authToken);
+      }
+
+      function zidHeaders() {
+        return {
+          Authorization: 'Bearer ' + state.authToken,
+          'X-Manager-Token': state.accessToken,
+          'Accept-Language': 'en',
+        };
+      }
+
+      async function zidFetch(path) {
+        var res = await fetch(ZID_API + path, { headers: zidHeaders() });
+        if (!res.ok) {
+          var detail = '';
+          try {
+            var body = await res.json();
+            detail = body.message || body.error || '';
+          } catch (_) { /* ignore */ }
+          throw new Error('Zid API ' + res.status + (detail ? ': ' + detail : ''));
+        }
+        return res.json();
+      }
+
+      /**
+       * List orders via Zid search_term (matches order id, phone, and more in one call).
+       * Empty searchTerm returns the latest orders.
+       */
+      async function fetchOrders(searchTerm) {
+        var query = '/orders?page=1&per_page=' + PAGE_SIZE;
+        if (searchTerm) {
+          query += '&search_term=' + encodeURIComponent(searchTerm);
+        }
+
+        var ordersData = await zidFetch(query);
+        var ids = (ordersData.orders || []).map(function (o) { return o.id; });
+        return fetchOrderDetailsBatch(ids);
+      }
+
+      async function fetchOrderDetailsBatch(orderIds) {
+        if (!orderIds.length) return [];
+
+        var results = await Promise.all(
+          orderIds.map(function (id) { return fetchOrderDetails(id); })
+        );
+
+        return results.filter(Boolean);
+      }
+
+      async function fetchOrderDetails(orderId) {
+        try {
+          var data = await zidFetch('/orders/' + encodeURIComponent(orderId) + '/view');
+          return data.order || null;
+        } catch (err) {
+          console.warn('[zid-orders] failed to load order', orderId, err);
+          return null;
+        }
+      }
+
+      // ─── UI: banner ──────────────────────────────────────────────────────
+
+      var bannerTimer = null;
+
+      function showBanner(message, kind) {
+        dom.banner.className = 'banner is-visible banner--' + kind;
+        dom.banner.innerHTML = (kind === 'loading' ? '<span class="spinner"></span>' : '') + '<span>' + esc(message) + '</span>';
+
+        clearTimeout(bannerTimer);
+        if (kind === 'success') {
+          bannerTimer = setTimeout(hideBanner, 5000);
+        }
+      }
+
+      function hideBanner() {
+        dom.banner.classList.remove('is-visible');
+      }
+
+      function renderEmptyState() {
+        dom.ordersRoot.innerHTML =
+          '<div class="empty-state">' +
+            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+              '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>' +
+            '</svg>' +
+            '<h3>لا توجد طلبات للعرض</h3>' +
+            '<p>ابحث برقم الطلب أو الجوال، أو اعرض آخر الطلبات في المتجر</p>' +
+          '</div>';
+      }
+
+      // ─── UI: orders ──────────────────────────────────────────────────────
+
+      function renderOrders(orders) {
+        dom.ordersRoot.innerHTML = '';
+        orders.forEach(function (order) {
+          dom.ordersRoot.appendChild(buildOrderCard(order, orders.length === 1));
+        });
+      }
+
+      function buildOrderCard(order, openByDefault) {
+        var card = document.createElement('article');
+        card.className = 'order-card';
+
+        var customer = order.customer || {};
+        var shipping = (order.shipping && order.shipping.method) || {};
+        var shippingAddress = (order.shipping && order.shipping.address) || {};
+        var payment = (order.payment && order.payment.method) || {};
+        var paymentInvoice = (order.payment && order.payment.invoice) || [];
+        var orderStatus = order.order_status || {};
+        var coupon = order.coupon || {};
+        var products = order.products || [];
+        var paid = order.payment_status === 'paid';
+        var productCount = products.length;
+        var orderId = String(order.id);
+        var phone = customer.mobile ? normalizeSearchTerm(customer.mobile) : '';
+
+        card.innerHTML =
+          '<details class="order-details-wrap"' + (openByDefault ? ' open' : '') + '>' +
+            '<summary class="order-summary">' +
+              '<div class="order-summary-top">' +
+                copyChip(orderId, '#' + orderId, 'order-number') +
+                (order.code ? '<span class="order-code">' + esc(order.code) + '</span>' : '') +
+                '<span class="order-summary-customer">' + esc(customer.name || '—') + '</span>' +
+                '<span class="order-status">' + esc(orderStatus.name || '—') + '</span>' +
+              '</div>' +
+              '<div class="order-summary-bottom">' +
+                '<span>' + esc(formatDate(order.created_at)) + '</span>' +
+                (productCount ? '<span>' + productCount + ' منتج</span>' : '') +
+                '<span style="color:' + (paid ? 'var(--success)' : 'var(--warning)') + '">' +
+                  esc(paid ? 'مدفوع' : (order.payment_status || '—')) +
+                '</span>' +
+                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '') +
+              '</div>' +
+              '<span class="order-summary-total">' + esc(order.order_total_string || '—') + '</span>' +
+              '<span class="order-chevron" aria-hidden="true">▼</span>' +
+            '</summary>' +
+            '<div class="order-body">' +
+              '<div class="order-body-inner">' +
+                buildCustomerSection(customer, order) +
+                '<div class="info-grid">' +
+                  buildOrderInfoCard(order, coupon) +
+                  buildPaymentCard(order, payment) +
+                  buildShippingCard(order, shipping, orderStatus) +
+                  buildAddressCard(shippingAddress) +
+                  buildInvoiceCard(paymentInvoice) +
+                  buildProductsCard(products) +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</details>';
+
+        return card;
+      }
+
+      function buildCustomerSection(customer, order) {
+        var avatar = customer.avatar || 'https://app.karzoun.chat/brand-assets/logo-thumb.png';
+        var typeLabel = customer.type === 'individual' ? 'فردي' : 'تجاري';
+        var verified = customer.verified ? 'موثق' : 'غير موثق';
+        var phone = customer.mobile ? normalizeSearchTerm(customer.mobile) : '';
+
+        var actions = '';
+        if (order.order_url) {
+          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(order.order_url) + '">نسخ رابط الطلب</button>';
+        }
+        if (order.payment_link) {
+          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(order.payment_link) + '">نسخ رابط الدفع</button>';
+        }
+
+        return (
+          '<div class="customer-row">' +
+            '<img class="avatar" src="' + escAttr(avatar) + '" alt="">' +
+            '<div>' +
+              '<div class="customer-name">' + esc(customer.name || '—') + '</div>' +
+              '<div class="contact-line">✉ ' + esc(customer.email || '—') + '</div>' +
+              '<div class="contact-line">' +
+                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '☎ —') +
+              '</div>' +
+              '<div class="contact-line">نوع العميل: ' + esc(typeLabel) + ' (' + esc(verified) + ')</div>' +
+            '</div>' +
+            '<div class="customer-actions">' + actions + '</div>' +
+          '</div>'
+        );
+      }
+
+      function buildOrderInfoCard(order, coupon) {
+        var couponRow = '';
+        if (coupon && coupon.code) {
+          couponRow =
+            '<div class="info-row"><span class="info-label">كوبون</span>' +
+            '<span class="info-value">' + esc(coupon.code) + (coupon.name ? ' (' + esc(coupon.name) + ')' : '') + '</span></div>';
+        }
+
+        return (
+          '<div class="info-card"><h4>📅 تفاصيل الطلب</h4>' +
+            infoRow('تاريخ الطلب', formatDate(order.created_at)) +
+            infoRow('آخر تحديث', formatDate(order.updated_at)) +
+            infoRow('تاريخ الإصدار', order.issue_date || '—') +
+            infoRow('المصدر', order.source || '—') +
+            couponRow +
+          '</div>'
+        );
+      }
+
+      function buildPaymentCard(order, payment) {
+        var paid = order.payment_status === 'paid';
+        return (
+          '<div class="info-card"><h4>💳 الدفع</h4>' +
+            infoRow('الطريقة', payment.name || '—') +
+            '<div class="info-row"><span class="info-label">الحالة</span>' +
+              '<span class="info-value" style="color:' + (paid ? 'var(--success)' : 'var(--warning)') + '">' +
+                esc(paid ? 'مدفوع' : (order.payment_status || '—')) +
+              '</span></div>' +
+            infoRow('الإجمالي', order.order_total_string || '—') +
+            infoRow('العملة', order.currency_code || '—') +
+            (order.transaction_reference
+              ? infoRow('مرجع المعاملة', order.transaction_reference)
+              : '') +
+          '</div>'
+        );
+      }
+
+      function buildShippingCard(order, shipping, orderStatus) {
+        var tracking = (shipping.tracking && shipping.tracking.number) || shipping.waybill_tracking_id || '';
+        var actions = '<div class="action-row">';
+        if (tracking) {
+          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(tracking) + '">نسخ التتبع</button>';
+        }
+        if (shipping.tracking && shipping.tracking.url) {
+          actions += '<button type="button" class="btn btn-secondary" data-action="open" data-value="' + escAttr(shipping.tracking.url) + '">تتبع الشحنة</button>';
+        }
+        if (shipping.waybill) {
+          actions += '<button type="button" class="btn btn-secondary" data-action="open" data-value="' + escAttr(shipping.waybill) + '">بوليصة الشحن</button>';
+        }
+        actions += '</div>';
+
+        return (
+          '<div class="info-card"><h4>📦 الشحن</h4>' +
+            infoRow('الشركة', shipping.name || '—') +
+            infoRow('الحالة', shipping.order_shipping_status || orderStatus.name || '—') +
+            infoRow('رقم التتبع', tracking || '—') +
+            infoRow('التوصيل المتوقع', shipping.estimated_delivery_time || '—') +
+            actions +
+          '</div>'
+        );
+      }
+
+      function buildAddressCard(address) {
+        if (!address || !address.formatted_address) return '';
+
+        var shortAddr = address.meta && address.meta.short_address
+          ? infoRow('العنوان المختصر', address.meta.short_address)
+          : '';
+
+        return (
+          '<div class="info-card"><h4>📍 عنوان التوصيل</h4>' +
+            infoRow('الشارع', address.street || '—') +
+            infoRow('الحي', address.district || '—') +
+            infoRow('المدينة', (address.city && address.city.name) || '—') +
+            infoRow('الدولة', (address.country && address.country.name) || '—') +
+            shortAddr +
+          '</div>'
+        );
+      }
+
+      function buildInvoiceCard(invoiceItems) {
+        if (!invoiceItems.length) return '';
+
+        var rows = invoiceItems.map(function (item, idx) {
+          var isTotal = idx === invoiceItems.length - 1;
+          var cls = isTotal ? ' info-row invoice-total' : ' info-row';
+          var color = item.value < 0 ? 'var(--success)' : 'var(--text)';
+          return (
+            '<div class="' + cls.trim() + '">' +
+              '<span class="info-label">' + esc(item.title) + '</span>' +
+              '<span class="info-value" style="color:' + color + '">' + esc(item.value_string) + '</span>' +
+            '</div>'
+          );
+        }).join('');
+
+        return '<div class="info-card"><h4>🧾 الفاتورة</h4>' + rows + '</div>';
+      }
+
+      function buildProductsCard(products) {
+        if (!products.length) return '';
+
+        var rows = products.map(function (product) {
+          var img = (product.images && product.images[0] && product.images[0].origin) || '';
+          var desc = product.short_description && product.short_description.ar
+            ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">' + esc(truncate(product.short_description.ar, 90)) + '</div>'
+            : '';
+
+          return (
+            '<tr>' +
+              '<td><div class="product-cell">' +
+                (img ? '<img class="product-thumb" src="' + escAttr(img) + '" alt="">' : '') +
+                '<div><div class="product-name">' + esc(product.name) + '</div>' +
+                  '<div class="product-sku">SKU: ' + esc(product.sku || '—') + '</div>' + desc +
+                '</div></div></td>' +
+              '<td style="text-align:center">' + esc(String(product.quantity)) + '</td>' +
+              '<td style="text-align:center">' + esc(product.price_before_string || '—') + '</td>' +
+              '<td style="text-align:center">' + esc(product.price_string || '—') + '</td>' +
+              '<td style="text-align:center;font-weight:600">' + esc(product.total_string || '—') + '</td>' +
+            '</tr>'
+          );
+        }).join('');
+
+        return (
+          '<div class="info-card products-wrap"><h4>🛍 المنتجات (' + products.length + ')</h4>' +
+            '<table class="products-table"><thead><tr>' +
+              '<th>المنتج</th><th>الكمية</th><th>السعر الأصلي</th><th>بعد الخصم</th><th>الإجمالي</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+        );
+      }
+
+      function infoRow(label, value) {
+        return (
+          '<div class="info-row">' +
+            '<span class="info-label">' + esc(label) + '</span>' +
+            '<span class="info-value">' + esc(String(value)) + '</span>' +
+          '</div>'
+        );
+      }
+
+      function onOrdersClick(event) {
+        var btn = event.target.closest('[data-action]');
+        if (!btn) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        var action = btn.getAttribute('data-action');
+        var value = btn.getAttribute('data-value') || '';
+        var copyLabel = btn.getAttribute('data-copy-label') || '';
+
+        if (action === 'copy') {
+          copyText(value, copyLabel);
+        } else if (action === 'open' && value) {
+          window.open(value, '_blank', 'noopener,noreferrer');
+        }
+      }
+
+      function copyText(text, label) {
+        if (!text) return;
+
+        var done = function () {
+          showBanner(label ? ('تم نسخ ' + label) : 'تم النسخ بنجاح', 'success');
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () {
+            fallbackCopy(text);
+            done();
+          });
+        } else {
+          fallbackCopy(text);
+          done();
+        }
+      }
+
+      function fallbackCopy(text) {
+        var area = document.createElement('textarea');
+        area.value = text;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        document.body.removeChild(area);
+      }
+
+      // ─── Utils ───────────────────────────────────────────────────────────
+
+      /** Clickable text that copies `value` (strips + from phones via caller). */
+      function copyChip(value, display, extraClass) {
+        if (!value) return esc(display || '—');
+        return (
+          '<button type="button" class="copy-chip' + (extraClass ? ' ' + extraClass : '') + '"' +
+            ' data-action="copy"' +
+            ' data-value="' + escAttr(String(value)) + '"' +
+            ' data-copy-label="' + escAttr(String(display || value)) + '"' +
+            ' title="نسخ">' +
+            esc(display || value) +
+          '</button>'
+        );
+      }
+
+      /** Zid search_term rejects "+" in phone numbers — strip before every search. */
+      function normalizeSearchTerm(term) {
+        return String(term || '').trim().replace(/\+/g, '');
+      }
+
+      function esc(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function escAttr(value) {
+        return esc(value).replace(/`/g, '&#96;');
+      }
+
+      function truncate(text, max) {
+        if (!text || text.length <= max) return text || '';
+        return text.slice(0, max) + '…';
+      }
+
+      function formatDate(value) {
+        if (!value) return '—';
+        try {
+          return new Date(value).toLocaleString('ar-SA', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+        } catch (_) {
+          return String(value);
+        }
+      }
+
+      // ─── Start ───────────────────────────────────────────────────────────
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

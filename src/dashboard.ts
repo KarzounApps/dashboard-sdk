@@ -237,6 +237,32 @@ export function createDashboard(
     pending.resolve(data);
   }
 
+  // ─── Customer from conversation ─────────────────────────────────────
+
+  /** Derive customerContext from conversation.customer (primary host contract). */
+  function syncCustomerFromConversation(): void {
+    const c = conversation?.conversation.customer;
+    if (!c?._id) return;
+
+    customerContext = {
+      customerId: c._id,
+      customer: {
+        firstName: c.firstName,
+        lastName: c.lastName,
+        primaryEmail: c.primaryEmail,
+        primaryPhone: c.primaryPhone,
+        externalCodes: {},
+      },
+      suggestedFormValues: {
+        ...(c.primaryEmail ? { email: c.primaryEmail } : {}),
+        ...(c.primaryPhone ? { phone: c.primaryPhone } : {}),
+        ...(c.firstName ? { firstName: c.firstName } : {}),
+        ...(c.lastName ? { lastName: c.lastName } : {}),
+      },
+    };
+    emit("customerContextUpdate", customerContext);
+  }
+
   // ─── Inbound Message Handler ────────────────────────────────────────
 
   /**
@@ -261,16 +287,16 @@ export function createDashboard(
       case "conversation_data":
         conversation = msg.data as ConversationData;
         connected = true;
+        syncCustomerFromConversation();
         emit("conversationUpdate", conversation);
         checkReady();
         break;
 
-      // ── Customer context ─────────────────────────────────────
+      // ── Customer context (legacy — host may still send these) ──
       case "customer_context":
       case "customer_context_update":
       case "customer_context_result":
         if (msg.data) {
-          // Handle both { customerContext: {...} } and direct {...} shapes
           const raw = msg.data as Record<string, unknown>;
           customerContext = (raw.customerContext ?? raw) as CustomerContext;
           emit("customerContextUpdate", customerContext);
@@ -281,13 +307,8 @@ export function createDashboard(
       case "app_capabilities":
       case "config_result": {
         const raw = msg.data as Record<string, unknown>;
-        // config_result wraps: { config: {...}, customerContext: {...} }
         if (raw.config) {
           capabilities = raw.config as AppCapabilities;
-          if (raw.customerContext) {
-            customerContext = raw.customerContext as CustomerContext;
-            emit("customerContextUpdate", customerContext);
-          }
         } else {
           capabilities = raw as unknown as AppCapabilities;
         }

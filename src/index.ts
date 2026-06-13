@@ -31,6 +31,7 @@ export type {
   // Conversation
   ConversationData,
   ConversationMessage,
+  ConversationCustomer,
   // Customer
   CustomerContext,
   // Actions

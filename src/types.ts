@@ -9,6 +9,16 @@
 
 // ─── Conversation ───────────────────────────────────────────────────────────
 
+/** Customer embedded on the conversation object from the host. */
+export interface ConversationCustomer {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+  avatar?: string;
+}
+
 /** Minimal conversation object sent from the host. */
 export interface ConversationData {
   conversation: {
@@ -22,6 +32,8 @@ export interface ConversationData {
     customerId?: string;
     integrationId?: string;
     tagIds?: string[];
+    customer?: ConversationCustomer;
+    integration?: { _id: string; kind?: string; name?: string };
   };
   messages: ConversationMessage[];
   metadata: {
