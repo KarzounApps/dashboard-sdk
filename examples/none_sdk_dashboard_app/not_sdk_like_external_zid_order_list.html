@@ -215,6 +215,12 @@
       font-family: monospace;
     }
 
+    .copy-chip.order-code {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
     .order-summary-customer {
       font-size: 14px;
       font-weight: 600;
@@ -268,122 +274,445 @@
     }
 
     .order-body {
-      padding: 0 16px 16px;
+      padding: 0 14px 14px;
       border-top: 1px solid var(--border);
     }
 
-    .order-body-inner { padding-top: 16px; }
+    .order-body-inner { padding-top: 12px; }
 
-    .customer-row {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 14px;
-      align-items: center;
-      padding: 16px;
-      background: var(--surface);
-      border-radius: var(--radius);
-      margin-bottom: 18px;
-    }
+    /* ── Support-first layout ── */
+    .order-workspace { display: flex; flex-direction: column; gap: 12px; }
 
-    .avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #fff;
-      box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
-    }
-
-    .customer-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .contact-line {
+    .alerts-strip {
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .alert-banner {
+      padding: 10px 12px;
+      border-radius: var(--radius);
       font-size: 13px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .alert-banner--note {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+
+    .alert-banner--gift {
+      background: #fdf2f8;
+      border-color: #f9a8d4;
+      color: #9d174d;
+    }
+
+    .quick-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .quick-bar-identity {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .quick-bar-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .quick-bar-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
-    .customer-actions { display: flex; flex-direction: column; gap: 8px; }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
+    .quick-bar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    .info-card {
-      background: var(--surface);
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .section-block {
+      background: #fff;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px;
+      overflow: hidden;
     }
 
-    .info-card h4 {
+    .section-head {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      color: var(--primary);
-      margin-bottom: 12px;
-    }
-
-    .info-row {
-      display: flex;
       justify-content: space-between;
-      gap: 12px;
-      padding: 7px 0;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      font-size: 14px;
-    }
-
-    .info-row:last-child { border-bottom: none; }
-    .info-label { color: var(--text-muted); }
-    .info-value { font-weight: 600; text-align: left; }
-
-    .products-wrap { grid-column: 1 / -1; overflow-x: auto; }
-
-    .products-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
       font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
     }
 
-    .products-table th,
-    .products-table td {
+    .section-head-meta {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .product-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .products-table-rich {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .products-table-rich th,
+    .products-table-rich td {
       padding: 10px 8px;
       border-bottom: 1px solid var(--border);
       vertical-align: top;
-    }
-
-    .products-table th {
-      background: var(--surface);
-      font-weight: 600;
       text-align: right;
     }
 
-    .product-cell { display: flex; gap: 10px; min-width: 220px; }
+    .products-table-rich th {
+      background: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
 
-    .product-thumb {
-      width: 52px;
-      height: 52px;
-      border-radius: var(--radius);
+    .products-table-rich tbody tr:last-child td { border-bottom: none; }
+
+    .product-cell-rich { display: flex; gap: 10px; min-width: 200px; }
+
+    .product-thumb-rich {
+      width: 56px;
+      height: 56px;
+      border-radius: 6px;
       object-fit: cover;
       border: 1px solid var(--border);
       flex-shrink: 0;
+      background: var(--surface);
     }
 
-    .product-name { font-weight: 600; font-size: 13px; line-height: 1.35; }
-    .product-sku { font-size: 11px; color: var(--text-muted); font-family: monospace; }
-
-    .invoice-total {
-      border-top: 2px solid var(--primary) !important;
-      padding-top: 10px !important;
-      margin-top: 6px;
+    .product-name-rich {
+      font-size: 13px;
       font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 3px;
     }
 
-    .action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .product-parent-rich {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .product-meta-rich {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+      line-height: 1.45;
+    }
+
+    .product-desc-rich {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .product-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .product-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+    }
+
+    .product-badge--discount {
+      border-color: #86efac;
+      color: #166534;
+      background: #f0fdf4;
+    }
+
+    .product-row-detail td {
+      padding: 0 8px 10px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-detail-line {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .product-detail-line strong { color: var(--text); }
+
+    .product-total-foot {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .quick-bar-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .alert-banner--warn {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ops-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+
+    .ops-card--wide { grid-column: 1 / -1; }
+
+    .ops-card h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+      text-transform: none;
+    }
+
+    .ops-card .info-row {
+      padding: 4px 0;
+      font-size: 12px;
+    }
+
+    .tracking-highlight {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: #fff;
+      border: 1px dashed rgb(31 147 255 / 0.45);
+      border-radius: var(--radius);
+    }
+
+    .tracking-highlight-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .tracking-highlight-value {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .inline-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .inline-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .inline-tag strong { font-weight: 700; }
+
+    .invoice-compact .info-row { padding: 3px 0; font-size: 11px; }
+    .invoice-compact .invoice-total { font-size: 12px !important; }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    .meta-fold {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .meta-fold > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .meta-fold > summary::-webkit-details-marker { display: none; }
+
+    .meta-fold[open] > summary {
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    .meta-fold-body { padding: 10px 12px; }
+
+    .meta-fold-body--nested {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-subfold {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .meta-subfold > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .meta-subfold > summary::-webkit-details-marker { display: none; }
+
+    .meta-subfold[open] > summary {
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .meta-subfold-body { padding: 8px 10px; }
+    .meta-subfold-body .info-row { font-size: 12px; padding: 4px 0; }
+
+    .meta-fold-body .info-row { font-size: 12px; padding: 5px 0; }
+
+    .history-timeline {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .history-timeline-item {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 8px 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .history-timeline-item:last-child { border-bottom: none; }
+
+    .history-timeline-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .history-timeline-status {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .history-timeline-detail {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .address-block {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .address-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
 
     .empty-state {
       text-align: center;
@@ -409,13 +738,33 @@
       .search-form { grid-template-columns: 1fr; }
       .search-actions { width: 100%; }
       .search-actions .btn { flex: 1; }
-      .customer-row { grid-template-columns: 1fr; text-align: center; }
-      .customer-actions { align-items: stretch; }
+      .ops-grid { grid-template-columns: 1fr; }
+      .products-table-rich { min-width: 640px; }
       .order-summary {
         grid-template-columns: 1fr auto;
       }
       .order-summary-total { grid-column: 1; }
       .order-chevron { grid-row: 1 / 3; grid-column: 2; }
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); }
+    .info-value { font-weight: 600; text-align: left; }
+
+    .invoice-total {
+      border-top: 2px solid var(--primary) !important;
+      padding-top: 8px !important;
+      margin-top: 4px;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -784,43 +1133,50 @@
         var payment = (order.payment && order.payment.method) || {};
         var paymentInvoice = (order.payment && order.payment.invoice) || [];
         var orderStatus = order.order_status || {};
-        var coupon = order.coupon || {};
+        var displayStatus = order.display_status || {};
         var products = order.products || [];
         var paid = order.payment_status === 'paid';
-        var productCount = products.length;
+        var productCount = order.products_count || products.length;
         var orderId = String(order.id);
         var phone = customer.mobile ? normalizeSearchTerm(customer.mobile) : '';
+        var statusName = displayStatus.name || orderStatus.name || '—';
+        var statusStyle = displayStatus.color
+          ? ' style="border-color:' + escAttr(displayStatus.color) + ';color:' + escAttr(displayStatus.color) + '"'
+          : '';
+
+        var firstProduct = products[0];
+        var summaryProduct = firstProduct
+          ? truncate(firstProduct.name || '', 36)
+          : '';
 
         card.innerHTML =
           '<details class="order-details-wrap"' + (openByDefault ? ' open' : '') + '>' +
             '<summary class="order-summary">' +
               '<div class="order-summary-top">' +
                 copyChip(orderId, '#' + orderId, 'order-number') +
-                (order.code ? '<span class="order-code">' + esc(order.code) + '</span>' : '') +
                 '<span class="order-summary-customer">' + esc(customer.name || '—') + '</span>' +
-                '<span class="order-status">' + esc(orderStatus.name || '—') + '</span>' +
+                '<span class="order-status"' + statusStyle + '>' + esc(statusName) + '</span>' +
               '</div>' +
               '<div class="order-summary-bottom">' +
-                '<span>' + esc(formatDate(order.created_at)) + '</span>' +
-                (productCount ? '<span>' + productCount + ' منتج</span>' : '') +
+                (summaryProduct ? '<span>' + esc(summaryProduct) + '</span>' : '') +
+                (productCount > 1 ? '<span>+' + (productCount - 1) + ' أخرى</span>' : '') +
+                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '') +
                 '<span style="color:' + (paid ? 'var(--success)' : 'var(--warning)') + '">' +
                   esc(paid ? 'مدفوع' : (order.payment_status || '—')) +
                 '</span>' +
-                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '') +
+                '<span>' + esc(formatDate(order.created_at)) + '</span>' +
               '</div>' +
               '<span class="order-summary-total">' + esc(order.order_total_string || '—') + '</span>' +
               '<span class="order-chevron" aria-hidden="true">▼</span>' +
             '</summary>' +
             '<div class="order-body">' +
               '<div class="order-body-inner">' +
-                buildCustomerSection(customer, order) +
-                '<div class="info-grid">' +
-                  buildOrderInfoCard(order, coupon) +
-                  buildPaymentCard(order, payment) +
-                  buildShippingCard(order, shipping, orderStatus) +
-                  buildAddressCard(shippingAddress) +
-                  buildInvoiceCard(paymentInvoice) +
-                  buildProductsCard(products) +
+                '<div class="order-workspace">' +
+                  buildAlertsStrip(order) +
+                  buildQuickBar(customer, order, shipping) +
+                  buildProductsSection(products, order) +
+                  buildOpsSection(order, shipping, shippingAddress, payment, paymentInvoice, orderStatus) +
+                  buildMetaFolds(order, customer, order.histories) +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -829,163 +1185,660 @@
         return card;
       }
 
-      function buildCustomerSection(customer, order) {
-        var avatar = customer.avatar || 'https://app.karzoun.chat/brand-assets/logo-thumb.png';
-        var typeLabel = customer.type === 'individual' ? 'فردي' : 'تجاري';
-        var verified = customer.verified ? 'موثق' : 'غير موثق';
+      function buildAlertsStrip(order) {
+        var alerts = [];
+        if (order.is_potential_fraud) {
+          alerts.push('<div class="alert-banner alert-banner--warn"><strong>تنبيه:</strong> الطلب مُعلَّم كاحتمال احتيال</div>');
+        }
+        if (order.customer_note) {
+          alerts.push('<div class="alert-banner alert-banner--note"><strong>ملاحظة العميل:</strong> ' + esc(order.customer_note) + '</div>');
+        }
+        if (order.gift_message) {
+          alerts.push('<div class="alert-banner alert-banner--gift"><strong>رسالة الهدية:</strong> ' + esc(order.gift_message) + '</div>');
+        }
+        if (!alerts.length) return '';
+        return '<div class="alerts-strip">' + alerts.join('') + '</div>';
+      }
+
+      function buildQuickBar(customer, order, shipping) {
         var phone = customer.mobile ? normalizeSearchTerm(customer.mobile) : '';
+        var email = customer.email || '';
+        var customerId = customer.id ? String(customer.id) : '';
+        var typeLabel = customer.type === 'individual' ? 'فردي' : (customer.type === 'business' ? 'تجاري' : (customer.type || ''));
+        var verifiedLabel = customer.verified ? 'موثق' : 'غير موثق';
+        var tracking = (shipping.tracking && shipping.tracking.number) || shipping.waybill_tracking_id || '';
 
         var actions = '';
+        if (tracking && shipping.tracking && shipping.tracking.url) {
+          actions += '<button type="button" class="btn btn-primary btn-sm" data-action="open" data-value="' + escAttr(shipping.tracking.url) + '">تتبع</button>';
+        }
+        if (order.invoice_link) {
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(order.invoice_link) + '">PDF</button>';
+        }
         if (order.order_url) {
-          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(order.order_url) + '">نسخ رابط الطلب</button>';
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(order.order_url) + '">الطلب</button>';
+        }
+        if (order.store_url) {
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(order.store_url) + '">المتجر</button>';
         }
         if (order.payment_link) {
-          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(order.payment_link) + '">نسخ رابط الدفع</button>';
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="copy" data-value="' + escAttr(order.payment_link) + '" data-copy-label="رابط الدفع">رابط الدفع</button>';
         }
-
-        return (
-          '<div class="customer-row">' +
-            '<img class="avatar" src="' + escAttr(avatar) + '" alt="">' +
-            '<div>' +
-              '<div class="customer-name">' + esc(customer.name || '—') + '</div>' +
-              '<div class="contact-line">✉ ' + esc(customer.email || '—') + '</div>' +
-              '<div class="contact-line">' +
-                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '☎ —') +
-              '</div>' +
-              '<div class="contact-line">نوع العميل: ' + esc(typeLabel) + ' (' + esc(verified) + ')</div>' +
-            '</div>' +
-            '<div class="customer-actions">' + actions + '</div>' +
-          '</div>'
-        );
-      }
-
-      function buildOrderInfoCard(order, coupon) {
-        var couponRow = '';
-        if (coupon && coupon.code) {
-          couponRow =
-            '<div class="info-row"><span class="info-label">كوبون</span>' +
-            '<span class="info-value">' + esc(coupon.code) + (coupon.name ? ' (' + esc(coupon.name) + ')' : '') + '</span></div>';
-        }
-
-        return (
-          '<div class="info-card"><h4>📅 تفاصيل الطلب</h4>' +
-            infoRow('تاريخ الطلب', formatDate(order.created_at)) +
-            infoRow('آخر تحديث', formatDate(order.updated_at)) +
-            infoRow('تاريخ الإصدار', order.issue_date || '—') +
-            infoRow('المصدر', order.source || '—') +
-            couponRow +
-          '</div>'
-        );
-      }
-
-      function buildPaymentCard(order, payment) {
-        var paid = order.payment_status === 'paid';
-        return (
-          '<div class="info-card"><h4>💳 الدفع</h4>' +
-            infoRow('الطريقة', payment.name || '—') +
-            '<div class="info-row"><span class="info-label">الحالة</span>' +
-              '<span class="info-value" style="color:' + (paid ? 'var(--success)' : 'var(--warning)') + '">' +
-                esc(paid ? 'مدفوع' : (order.payment_status || '—')) +
-              '</span></div>' +
-            infoRow('الإجمالي', order.order_total_string || '—') +
-            infoRow('العملة', order.currency_code || '—') +
-            (order.transaction_reference
-              ? infoRow('مرجع المعاملة', order.transaction_reference)
-              : '') +
-          '</div>'
-        );
-      }
-
-      function buildShippingCard(order, shipping, orderStatus) {
-        var tracking = (shipping.tracking && shipping.tracking.number) || shipping.waybill_tracking_id || '';
-        var actions = '<div class="action-row">';
         if (tracking) {
-          actions += '<button type="button" class="btn btn-secondary" data-action="copy" data-value="' + escAttr(tracking) + '">نسخ التتبع</button>';
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="copy" data-value="' + escAttr(tracking) + '" data-copy-label="رقم التتبع">نسخ التتبع</button>';
         }
+
+        return (
+          '<div class="quick-bar">' +
+            '<div class="quick-bar-identity">' +
+              '<span class="quick-bar-name">' + esc(customer.name || '—') + '</span>' +
+              (typeLabel ? '<span class="quick-bar-badge">' + esc(typeLabel) + ' · ' + esc(verifiedLabel) + '</span>' : '') +
+              (customerId ? '<span class="quick-bar-badge">عميل ' + copyChip(customerId, '#' + customerId, 'order-phone') + '</span>' : '') +
+              '<div class="quick-bar-contact">' +
+                (phone ? copyChip(phone, '☎ ' + phone, 'order-phone') : '') +
+                (email ? copyChip(email, '✉ ' + email, 'order-phone') : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="quick-bar-actions">' + actions + '</div>' +
+          '</div>'
+        );
+      }
+
+      function buildProductsSection(products, order) {
+        if (!products.length) return '';
+
+        var rows = products.map(function (product) {
+          return buildProductTableRows(product);
+        }).join('');
+
+        var footParts = [];
+        if (order.products_sum_total_string) {
+          footParts.push('مجموع المنتجات: ' + esc(order.products_sum_total_string));
+        }
+        if (order.weight) {
+          footParts.push('وزن الشحنة: ' + esc(formatWeight(order.weight)));
+        }
+
+        return (
+          '<section class="section-block">' +
+            '<div class="section-head">' +
+              '<span>المنتجات</span>' +
+              '<span class="section-head-meta">' + products.length + ' صنف</span>' +
+            '</div>' +
+            '<div class="product-table-wrap">' +
+              '<table class="products-table-rich">' +
+                '<thead><tr>' +
+                  '<th>المنتج</th>' +
+                  '<th>الكمية</th>' +
+                  '<th>سعر الوحدة</th>' +
+                  '<th>قبل الخصم</th>' +
+                  '<th>بعد الخصم</th>' +
+                  '<th>الضريبة</th>' +
+                  '<th>الإجمالي</th>' +
+                '</tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+              '</table>' +
+            '</div>' +
+            (footParts.length
+              ? '<div class="product-total-foot">' + footParts.join(' · ') + '</div>'
+              : '') +
+          '</section>'
+        );
+      }
+
+      function buildProductTableRows(product) {
+        var img = (product.images && product.images[0] && product.images[0].origin) || '';
+        var unitPrice = product.price_string || product.net_price_string || '—';
+        var beforeDiscount = product.gross_price_string || product.price_with_additions_string || product.total_string || '—';
+        var afterDiscount = product.discounted_total_string || product.total_string || product.price_string || '—';
+        var taxAmount = product.discounted_tax_amount_string || product.tax_amount_string || '—';
+        var finalTotal = product.discounted_total_string || product.total_string || '—';
+
+        var thumb = img
+          ? '<img class="product-thumb-rich" src="' + escAttr(img) + '" alt="">'
+          : '<div class="product-thumb-rich" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted)">📦</div>';
+
+        var parentLine = product.parent_name
+          ? '<div class="product-parent-rich">' + esc(product.parent_name) + '</div>'
+          : '';
+
+        var optionsLine = '';
+        if (product.options && product.options.length) {
+          optionsLine = ' · ' + esc(product.options.map(function (o) {
+            return (o.name || o.label || '') + ': ' + (o.value || '');
+          }).join(' · '));
+        }
+
+        var badges = '';
+        if (product.is_discounted || (product.discounts && product.discounts.coupon)) {
+          badges += '<span class="product-badge product-badge--discount">خصم</span>';
+        }
+        if (product.is_taxable) {
+          badges += '<span class="product-badge">خاضع للضريبة</span>';
+        }
+
+        var desc = '';
+        var descText = (product.short_description && (product.short_description.ar || product.short_description.en)) || '';
+        if (descText) {
+          desc = '<div class="product-desc-rich">' + esc(truncate(descText, 140)) + '</div>';
+        }
+
+        var badgesBlock = badges ? '<div class="product-badges">' + badges + '</div>' : '';
+
+        var detailParts = [];
+        if (product.barcode) detailParts.push('<strong>باركود:</strong> ' + esc(product.barcode));
+        if (product.order_product_id) {
+          detailParts.push('<strong>معرّف السطر:</strong> ' + copyChip(String(product.order_product_id), String(product.order_product_id), 'order-phone'));
+        }
+        if (product.discounts && product.discounts.coupon) {
+          var cd = product.discounts.coupon;
+          detailParts.push(
+            '<strong>خصم الكوبون:</strong> ' + esc(String(cd.amount || '')) +
+            (cd.percentage ? ' (' + esc(String(Math.round(cd.percentage * 100) / 100)) + '%)' : '')
+          );
+        }
+        if (product.custom_fields && product.custom_fields.length) {
+          detailParts.push(
+            '<strong>حقول مخصصة:</strong> ' +
+            esc(product.custom_fields.map(function (f) {
+              return (f.name || f.label || '') + ': ' + (f.value || '');
+            }).join(' · '))
+          );
+        }
+
+        var detailRow = detailParts.length
+          ? '<tr class="product-row-detail"><td colspan="7"><div class="product-detail-line">' + detailParts.join(' · ') + '</div></td></tr>'
+          : '';
+
+        return (
+          '<tr>' +
+            '<td><div class="product-cell-rich">' +
+              thumb +
+              '<div>' +
+                '<div class="product-name-rich">' + esc(product.name) + '</div>' +
+                parentLine +
+                '<div class="product-meta-rich">SKU: ' + esc(product.sku || '—') +
+                  (product.weight && product.weight.value
+                    ? ' · ' + esc(String(product.weight.value)) + esc(product.weight.unit || '')
+                    : '') +
+                  optionsLine +
+                '</div>' +
+                badgesBlock + desc +
+              '</div>' +
+            '</div></td>' +
+            '<td style="text-align:center;font-weight:700;color:var(--primary)">' + esc(String(product.quantity)) + '</td>' +
+            '<td style="text-align:center;white-space:nowrap">' + esc(unitPrice) + '</td>' +
+            '<td style="text-align:center;white-space:nowrap">' + esc(beforeDiscount) + '</td>' +
+            '<td style="text-align:center;white-space:nowrap">' + esc(afterDiscount) + '</td>' +
+            '<td style="text-align:center;white-space:nowrap">' + esc(taxAmount) + '</td>' +
+            '<td style="text-align:center;font-weight:700;white-space:nowrap">' + esc(finalTotal) + '</td>' +
+          '</tr>' +
+          detailRow
+        );
+      }
+
+      function buildOpsSection(order, shipping, address, payment, paymentInvoice, orderStatus) {
+        return (
+          '<div class="ops-grid">' +
+            buildShippingOps(order, shipping, orderStatus) +
+            buildPaymentOps(order, payment, paymentInvoice) +
+            buildAddressOps(address) +
+          '</div>'
+        );
+      }
+
+      function buildShippingOps(order, shipping, orderStatus) {
+        var tracking = (shipping.tracking && shipping.tracking.number) || shipping.waybill_tracking_id || '';
+        var courier = shipping.courier && shipping.courier.name;
+        var courierLabel = courier ? (courier.ar || courier.en || shipping.courier.code) : '';
+        var inventory = order.inventory_address;
+
+        var trackingBlock = tracking
+          ? '<div class="tracking-highlight">' +
+              '<span class="tracking-highlight-label">رقم التتبع</span>' +
+              '<span class="tracking-highlight-value">' + copyChip(tracking, tracking, 'order-phone') + '</span>' +
+            '</div>'
+          : '';
+
+        var actions = '<div class="action-row">';
         if (shipping.tracking && shipping.tracking.url) {
-          actions += '<button type="button" class="btn btn-secondary" data-action="open" data-value="' + escAttr(shipping.tracking.url) + '">تتبع الشحنة</button>';
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(shipping.tracking.url) + '">تتبع الشحنة</button>';
         }
         if (shipping.waybill) {
-          actions += '<button type="button" class="btn btn-secondary" data-action="open" data-value="' + escAttr(shipping.waybill) + '">بوليصة الشحن</button>';
+          actions += '<button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(shipping.waybill) + '">البوليصة</button>';
         }
         actions += '</div>';
 
         return (
-          '<div class="info-card"><h4>📦 الشحن</h4>' +
-            infoRow('الشركة', shipping.name || '—') +
+          '<div class="ops-card">' +
+            '<h4>الشحن والتوصيل</h4>' +
+            trackingBlock +
             infoRow('الحالة', shipping.order_shipping_status || orderStatus.name || '—') +
-            infoRow('رقم التتبع', tracking || '—') +
+            (shipping.tracking && shipping.tracking.status
+              ? infoRow('حالة التتبع', shipping.tracking.status)
+              : '') +
+            infoRow('الشركة', (courierLabel || shipping.display_name || shipping.name || '—')) +
             infoRow('التوصيل المتوقع', shipping.estimated_delivery_time || '—') +
+            (order.delivered_at ? infoRow('تم التوصيل', formatDate(order.delivered_at)) : '') +
+            (order.packages_count ? infoRow('الطرود', order.packages_count) : '') +
+            (inventory && inventory.name
+              ? infoRow('المستودع', inventory.name + (inventory.city ? ' · ' + (inventory.city.ar_name || inventory.city.name) : ''))
+              : '') +
+            (inventory && inventory.short_address
+              ? infoRowCopy('عنوان المستودع', inventory.short_address)
+              : '') +
+            (inventory && inventory.full_address
+              ? infoRow('عنوان المستودع الكامل', truncate(inventory.full_address, 80))
+              : '') +
             actions +
           '</div>'
         );
       }
 
-      function buildAddressCard(address) {
-        if (!address || !address.formatted_address) return '';
+      function buildPaymentOps(order, payment, paymentInvoice) {
+        var paid = order.payment_status === 'paid';
+        var summary = order.payment_summary || {};
+        var firstPayment = (order.payments && order.payments[0]) || null;
+        var coupons = order.coupons || (order.coupon && order.coupon.code ? [order.coupon] : []);
 
-        var shortAddr = address.meta && address.meta.short_address
-          ? infoRow('العنوان المختصر', address.meta.short_address)
-          : '';
+        var couponTags = '';
+        if (coupons.length) {
+          couponTags = '<div class="inline-tags">' + coupons.map(function (c) {
+            return (
+              '<span class="inline-tag">' +
+                '<strong>' + esc(c.code || c.name || '—') + '</strong>' +
+                (c.discount_string ? esc(c.discount_string) : '') +
+                (c.free_shipping ? ' · شحن مجاني' : '') +
+              '</span>'
+            );
+          }).join('') + '</div>';
+        }
+
+        var invoiceBlock = '';
+        if (paymentInvoice.length) {
+          var rows = paymentInvoice.map(function (item, idx) {
+            var isTotal = idx === paymentInvoice.length - 1;
+            var cls = isTotal ? ' info-row invoice-total' : ' info-row';
+            var color = Number(item.value) < 0 ? 'var(--success)' : 'var(--text)';
+            return (
+              '<div class="' + cls.trim() + '">' +
+                '<span class="info-label">' + esc(item.title) + '</span>' +
+                '<span class="info-value" style="color:' + color + '">' + esc(item.value_string) + '</span>' +
+              '</div>'
+            );
+          }).join('');
+          invoiceBlock = '<div class="invoice-compact" style="margin-top:8px;border-top:1px solid var(--border);padding-top:4px">' + rows + '</div>';
+        }
 
         return (
-          '<div class="info-card"><h4>📍 عنوان التوصيل</h4>' +
-            infoRow('الشارع', address.street || '—') +
-            infoRow('الحي', address.district || '—') +
-            infoRow('المدينة', (address.city && address.city.name) || '—') +
-            infoRow('الدولة', (address.country && address.country.name) || '—') +
-            shortAddr +
+          '<div class="ops-card">' +
+            '<h4>الدفع والفاتورة</h4>' +
+            infoRow('الطريقة', (payment.name || '—') + (order.payment_network ? ' · ' + order.payment_network : '')) +
+            (payment.type ? infoRow('نوع الدفع', payment.type) : '') +
+            '<div class="info-row"><span class="info-label">الحالة</span>' +
+              '<span class="info-value" style="color:' + (paid ? 'var(--success)' : 'var(--warning)') + '">' +
+                esc(paid ? 'مدفوع' : (order.payment_status || '—')) +
+                (order.cod_confirmed ? ' · COD مؤكد' : '') +
+              '</span></div>' +
+            infoRow('الإجمالي', order.order_total_string || summary.total_string || '—') +
+            (summary.paid_amount_string ? infoRow('المدفوع', summary.paid_amount_string) : '') +
+            (summary.remaining_amount > 0 ? infoRow('المتبقي', summary.remaining_amount_string) : '') +
+            infoRow('العملة', order.currency_code || '—') +
+            (firstPayment && firstPayment.created_at
+              ? infoRow('تاريخ الدفع', formatDate(firstPayment.created_at))
+              : '') +
+            couponTags +
+            invoiceBlock +
           '</div>'
         );
       }
 
-      function buildInvoiceCard(invoiceItems) {
-        if (!invoiceItems.length) return '';
+      function buildAddressOps(address) {
+        if (!address || (!address.street && !address.district)) return '';
 
-        var rows = invoiceItems.map(function (item, idx) {
-          var isTotal = idx === invoiceItems.length - 1;
-          var cls = isTotal ? ' info-row invoice-total' : ' info-row';
-          var color = item.value < 0 ? 'var(--success)' : 'var(--text)';
-          return (
-            '<div class="' + cls.trim() + '">' +
-              '<span class="info-label">' + esc(item.title) + '</span>' +
-              '<span class="info-value" style="color:' + color + '">' + esc(item.value_string) + '</span>' +
-            '</div>'
-          );
-        }).join('');
+        var shortAddr = address.short_address || (address.meta && address.meta.short_address) || '';
+        var city = (address.city && address.city.name) || '';
+        var district = address.district || '';
+        var street = address.street || '';
 
-        return '<div class="info-card"><h4>🧾 الفاتورة</h4>' + rows + '</div>';
+        var mapsBtn = '';
+        if (address.lat && address.lng) {
+          var mapsUrl = 'https://www.google.com/maps?q=' + encodeURIComponent(address.lat + ',' + address.lng);
+          mapsBtn = '<div class="action-row"><button type="button" class="btn btn-secondary btn-sm" data-action="open" data-value="' + escAttr(mapsUrl) + '">الخريطة</button></div>';
+        }
+
+        return (
+          '<div class="ops-card ops-card--wide">' +
+            '<h4>عنوان التوصيل</h4>' +
+            '<div class="address-block">' + esc(street) + '</div>' +
+            '<div class="address-sub">' +
+              esc([district, city, (address.country && address.country.name) || ''].filter(Boolean).join(' · ')) +
+              (shortAddr ? ' · ' + copyChip(shortAddr, shortAddr, 'order-phone') : '') +
+            '</div>' +
+            mapsBtn +
+          '</div>'
+        );
       }
 
-      function buildProductsCard(products) {
-        if (!products.length) return '';
+      function buildMetaFolds(order, customer, histories) {
+        var folds = [];
+        if (histories && histories.length) {
+          folds.push(buildHistoryFold(histories));
+        }
+        folds.push(buildExtraMetaFold(order, customer));
+        return folds.join('');
+      }
 
-        var rows = products.map(function (product) {
-          var img = (product.images && product.images[0] && product.images[0].origin) || '';
-          var desc = product.short_description && product.short_description.ar
-            ? '<div style="font-size:11px;color:var(--text-muted);margin-top:4px">' + esc(truncate(product.short_description.ar, 90)) + '</div>'
-            : '';
-
+      function buildHistoryFold(histories) {
+        var items = histories.slice(0, 12).map(function (h) {
+          var by = h.changed_by_details && h.changed_by_details.by;
+          var action = h.changed_by_details && h.changed_by_details.action;
+          var lines = [];
+          if (h.comment) lines.push(esc(h.comment));
+          if (by) {
+            lines.push(esc(by) + (h.changed_by_type ? ' · ' + esc(h.changed_by_type) : ''));
+          }
+          if (action && action !== h.comment) {
+            lines.push(esc(action));
+          }
           return (
-            '<tr>' +
-              '<td><div class="product-cell">' +
-                (img ? '<img class="product-thumb" src="' + escAttr(img) + '" alt="">' : '') +
-                '<div><div class="product-name">' + esc(product.name) + '</div>' +
-                  '<div class="product-sku">SKU: ' + esc(product.sku || '—') + '</div>' + desc +
-                '</div></div></td>' +
-              '<td style="text-align:center">' + esc(String(product.quantity)) + '</td>' +
-              '<td style="text-align:center">' + esc(product.price_before_string || '—') + '</td>' +
-              '<td style="text-align:center">' + esc(product.price_string || '—') + '</td>' +
-              '<td style="text-align:center;font-weight:600">' + esc(product.total_string || '—') + '</td>' +
-            '</tr>'
+            '<li class="history-timeline-item">' +
+              '<span class="history-timeline-time">' + esc(h.humanized_created_at || formatDate(h.created_at)) + '</span>' +
+              '<div>' +
+                '<div class="history-timeline-status">' + esc(h.order_status_name || '—') + '</div>' +
+                (lines.length ? '<div class="history-timeline-detail">' + lines.join('<br>') + '</div>' : '') +
+              '</div>' +
+            '</li>'
           );
         }).join('');
 
         return (
-          '<div class="info-card products-wrap"><h4>🛍 المنتجات (' + products.length + ')</h4>' +
-            '<table class="products-table"><thead><tr>' +
-              '<th>المنتج</th><th>الكمية</th><th>السعر الأصلي</th><th>بعد الخصم</th><th>الإجمالي</th>' +
-            '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+          '<details class="meta-fold">' +
+            '<summary>سجل الطلب <span>' + histories.length + ' حدث</span></summary>' +
+            '<div class="meta-fold-body"><ul class="history-timeline">' + items + '</ul></div>' +
+          '</details>'
+        );
+      }
+
+      function buildExtraMetaFold(order, customer) {
+        var shipping = (order.shipping && order.shipping.method) || {};
+        var shippingAddress = (order.shipping && order.shipping.address) || {};
+        var payment = (order.payment && order.payment.method) || {};
+        var inventory = order.inventory_address || {};
+        var summary = order.payment_summary || {};
+        var currency = order.currency || {};
+        var displayStatus = order.display_status || {};
+        var orderStatus = order.order_status || {};
+
+        var sectionsHtml = '';
+        var currentTitle = null;
+        var currentRows = '';
+
+        function beginSection(title) {
+          if (currentTitle) flushSection();
+          currentTitle = title;
+          currentRows = '';
+        }
+
+        function flushSection() {
+          if (!currentTitle || !currentRows) {
+            currentTitle = null;
+            currentRows = '';
+            return;
+          }
+          sectionsHtml +=
+            '<details class="meta-subfold">' +
+              '<summary>' + esc(currentTitle) + '</summary>' +
+              '<div class="meta-subfold-body">' + currentRows + '</div>' +
+            '</details>';
+          currentTitle = null;
+          currentRows = '';
+        }
+
+        function yesNo(value) {
+          if (value === true || value === 1 || value === '1') return 'نعم';
+          if (value === false || value === 0 || value === '0') return 'لا';
+          return value == null ? '—' : String(value);
+        }
+
+        function addRow(label, value) {
+          if (value == null || value === '' || value === '—') return;
+          currentRows += infoRow(label, value);
+        }
+
+        function addCopy(label, value) {
+          if (value == null || value === '') return;
+          currentRows += infoRowCopy(label, String(value));
+        }
+
+        function addLink(label, url) {
+          if (!url) return;
+          currentRows += infoRowCopy(label, url);
+        }
+
+        function addBool(label, value) {
+          if (value == null) return;
+          currentRows += infoRow(label, yesNo(value));
+        }
+
+        // ── Order identifiers ──
+        beginSection('معرّفات الطلب');
+        addCopy('رقم الطلب', order.id);
+        addCopy('كود الطلب', order.code);
+        addCopy('رقم الفاتورة', order.invoice_number);
+        addRow('المتجر', order.store_name);
+        addRow('معرّف المتجر', order.store_id);
+        addLink('رابط الطلب', order.order_url);
+        addLink('رابط الفاتورة PDF', order.invoice_link);
+        addLink('رابط المتجر', order.store_url);
+        addRow('كود طريقة الشحن', order.shipping_method_code);
+        addRow('حالة الطلب', (orderStatus.name || '—') + (orderStatus.code ? ' (' + orderStatus.code + ')' : ''));
+        if (displayStatus.name || displayStatus.code) {
+          addRow('حالة العرض', (displayStatus.name || '—') + (displayStatus.code ? ' (' + displayStatus.code + ')' : ''));
+        }
+
+        // ── Dates & source ──
+        beginSection('التواريخ والمصدر');
+        addRow('تاريخ الإنشاء', formatDate(order.created_at));
+        addRow('تاريخ الإصدار', order.issue_date);
+        addRow('آخر تحديث', formatDate(order.updated_at));
+        if (order.delivered_at) addRow('تاريخ التوصيل', formatDate(order.delivered_at));
+        addRow('المصدر', (order.source || '—') + (order.source_code ? ' (' + order.source_code + ')' : ''));
+        addRow('لغة الطلب', order.language);
+
+        // ── Customer account ──
+        if (customer) {
+          beginSection('حساب العميل');
+          addCopy('معرّف العميل', customer.id);
+          addRow('نوع العميل', customer.type === 'individual' ? 'فردي' : (customer.type === 'business' ? 'تجاري' : customer.type));
+          addBool('موثق', customer.verified);
+          if (customer.note) addRow('ملاحظة حساب العميل', customer.note);
+        }
+
+        // ── Order flags (support triage) ──
+        beginSection('خصائص الطلب');
+        addBool('يتطلب شحن', order.requires_shipping);
+        addBool('عميل زائر', order.is_guest_customer);
+        addBool('طلب هدية', order.is_gift_order);
+        addBool('شراء سريع', order.is_quick_checkout_order);
+        addBool('طلب مسبق', order.is_preorder);
+        addBool('مخصص للطلب المسبق', order.is_preorder_allocated);
+        addBool('طلب عند الطلب', order.is_on_demand);
+        addBool('طلب سوق', order.is_marketplace_order);
+        addBool('مستلم مختلف', order.has_different_consignee);
+        addBool('معاد تفعيله', order.is_reactivated);
+        addBool('عملة معاملة مختلفة', order.has_different_transaction_currency);
+        addBool('معاملة موزّع', order.is_reseller_transaction);
+        addBool('احتمال احتيال', order.is_potential_fraud);
+        addBool('يحتاج تحديد شحن من التاجر', order.should_merchant_set_shipping_method);
+        addBool('يمكن طلب دفع مستحق', order.can_request_order_due_payment);
+        if (order.import_id) addRow('معرّف الاستيراد', order.import_id);
+        if (order.edits_count != null) addRow('عدد التعديلات', order.edits_count);
+        if (order.tags && order.tags.length) {
+          addRow('الوسوم', order.tags.map(function (t) { return t.name || t; }).join(' · '));
+        }
+
+        // ── Notes & policies ──
+        if (order.customer_note || order.gift_message || order.return_policy) {
+          beginSection('ملاحظات وسياسات');
+          if (order.customer_note) addRow('ملاحظة العميل على الطلب', order.customer_note);
+          if (order.gift_message) addRow('رسالة الهدية', order.gift_message);
+          if (order.return_policy) addRow('سياسة الإرجاع', order.return_policy);
+        }
+
+        // ── Payment details ──
+        beginSection('تفاصيل الدفع');
+        addRow('طريقة الدفع', payment.name);
+        addRow('كود الدفع', payment.code);
+        addRow('نوع الدفع', payment.type);
+        addRow('حالة الدفع', order.payment_status);
+        addBool('تأكيد COD', order.cod_confirmed);
+        addRow('شبكة الدفع', order.payment_network);
+        addRow('إجمالي الطلب', order.order_total_string || summary.total_string);
+        addRow('مبلغ المعاملة', order.transaction_amount_string);
+        addCopy('مرجع المعاملة', order.transaction_reference);
+        if (order.payment_link) addCopy('رابط الدفع', order.payment_link);
+        addBool('دفع متعدد', summary.is_multi_payment);
+        if (summary.paid_amount_string) addRow('المبلغ المدفوع', summary.paid_amount_string);
+        if (summary.remaining_amount_string && summary.remaining_amount > 0) {
+          addRow('المتبقي', summary.remaining_amount_string);
+        }
+        if (currency.order_currency) {
+          addRow('عملة الطلب', currency.order_currency.code + (currency.order_currency.exchange_rate != null
+            ? ' (سعر صرف: ' + currency.order_currency.exchange_rate + ')'
+            : ''));
+        }
+        if (currency.order_store_currency && currency.order_store_currency.code) {
+          addRow('عملة المتجر', currency.order_store_currency.code);
+        }
+        if (order.payments && order.payments.length) {
+          order.payments.forEach(function (p, idx) {
+            addRow(
+              'دفعة ' + (idx + 1),
+              (p.name || '—') + ' · ' + (p.amount_string || p.amount || '—') +
+              ' · ' + (p.status || '—') + (p.created_at ? ' · ' + formatDate(p.created_at) : '')
+            );
+            if (p.transaction_reference && p.transaction_reference !== order.transaction_reference) {
+              addCopy('مرجع دفعة ' + (idx + 1), p.transaction_reference);
+            }
+          });
+        }
+        if (order.cashback) addRow('استرداد نقدي', typeof order.cashback === 'object' ? JSON.stringify(order.cashback) : order.cashback);
+        if (order.preorder_campaign) {
+          addRow('حملة طلب مسبق', typeof order.preorder_campaign === 'object'
+            ? (order.preorder_campaign.name || order.preorder_campaign.id || JSON.stringify(order.preorder_campaign))
+            : order.preorder_campaign);
+        }
+
+        // ── Coupons (full detail) ──
+        var coupons = order.coupons || (order.coupon ? [order.coupon] : []);
+        if (coupons.length) {
+          beginSection('الكوبونات (تفصيل)');
+          coupons.forEach(function (c, idx) {
+            addRow(
+              'كوبون ' + (idx + 1),
+              (c.code || c.name || '—') +
+              (c.discount_string ? ' · ' + c.discount_string : '') +
+              (c.id ? ' · #' + c.id : '') +
+              (c.is_compliment ? ' · مجاملة' : '') +
+              (c.free_shipping ? ' · شحن مجاني' : '')
+            );
+          });
+        }
+
+        // ── Shipping technical ──
+        beginSection('تفاصيل الشحن');
+        addRow('شركة الشحن', shipping.display_name || shipping.name);
+        addRow('كود الشحن', shipping.code);
+        if (shipping.courier) {
+          var courier = shipping.courier;
+          addRow('الناقل', (courier.name && (courier.name.ar || courier.name.en)) || courier.code || courier.identifier);
+          addRow('معرّف الناقل', courier.identifier || courier.code);
+        }
+        addCopy('رقم التتبع', (shipping.tracking && shipping.tracking.number) || shipping.waybill_tracking_id);
+        if (shipping.tracking && shipping.tracking.url) addLink('رابط التتبع', shipping.tracking.url);
+        if (shipping.waybill) addLink('رابط البوليصة', shipping.waybill);
+        addBool('خطأ في جلب البوليصة', shipping.had_errors_while_fetching_waybill);
+        addBool('بوليصة وقائمة تعبئة', shipping.has_waybill_and_packing_list);
+        if (shipping.packages_count != null) addRow('طرود الشحنة', shipping.packages_count);
+        if (order.packages_count != null) addRow('طرود الطلب', order.packages_count);
+        if (order.weight) addRow('وزن الطلب', formatWeight(order.weight));
+        if (order.zidship_ticket_number) addRow('تذكرة ZidShip', order.zidship_ticket_number);
+        if (shipping.return_shipment) addRow('شحنة إرجاع', typeof shipping.return_shipment === 'object' ? JSON.stringify(shipping.return_shipment) : shipping.return_shipment);
+        if (order.reverse_order_label_request) addRow('طلب بوليصة إرجاع', JSON.stringify(order.reverse_order_label_request));
+        if (order.reverse_order_label_requests && order.reverse_order_label_requests.length) {
+          addRow('طلبات بوليصة إرجاع', order.reverse_order_label_requests.length + ' طلب');
+        }
+
+        // ── Delivery address (extra) ──
+        if (shippingAddress && (shippingAddress.street || shippingAddress.formatted_address)) {
+          beginSection('عنوان التوصيل (تفصيل)');
+          if (shippingAddress.formatted_address && shippingAddress.formatted_address !== 'N/A') {
+            addRow('العنوان المنسق', shippingAddress.formatted_address);
+          }
+          addRow('الشارع', shippingAddress.street);
+          addRow('الحي', shippingAddress.district);
+          if (shippingAddress.city) addRow('المدينة', shippingAddress.city.name + (shippingAddress.city.id ? ' #' + shippingAddress.city.id : ''));
+          if (shippingAddress.country) addRow('الدولة', shippingAddress.country.name);
+          addCopy('العنوان المختصر', shippingAddress.short_address);
+          if (shippingAddress.meta) {
+            if (shippingAddress.meta.building_number) addRow('رقم المبنى', shippingAddress.meta.building_number);
+            if (shippingAddress.meta.postcode) addRow('الرمز البريدي', shippingAddress.meta.postcode);
+            if (shippingAddress.meta.additional_number) addRow('الرقم الإضافي', shippingAddress.meta.additional_number);
+          }
+          if (shippingAddress.lat && shippingAddress.lng) {
+            addRow('الإحداثيات', shippingAddress.lat + ', ' + shippingAddress.lng);
+          }
+        }
+
+        // ── Warehouse ──
+        if (inventory && inventory.name) {
+          beginSection('المستودع');
+          addRow('الاسم', inventory.name);
+          if (inventory.city) addRow('المدينة', inventory.city.ar_name || inventory.city.name);
+          addCopy('العنوان المختصر', inventory.short_address);
+          addRow('العنوان الكامل', inventory.full_address || inventory.street);
+          if (inventory.coordinates && inventory.coordinates.lat) {
+            addRow('إحداثيات المستودع', inventory.coordinates.lat + ', ' + inventory.coordinates.lon);
+          }
+          addBool('نقطة استلام', inventory.is_pickup_option);
+          addBool('افتراضي ZidShip', inventory.is_zidship_default);
+        }
+
+        // ── Gift card & misc ──
+        if (order.gift_card_details) {
+          beginSection('بطاقة الهدية');
+          addRow('التفاصيل', typeof order.gift_card_details === 'object'
+            ? JSON.stringify(order.gift_card_details)
+            : order.gift_card_details);
+        }
+        if (order.reseller_meta) {
+          beginSection('بيانات الموزّع');
+          addRow('التفاصيل', typeof order.reseller_meta === 'object' ? JSON.stringify(order.reseller_meta) : order.reseller_meta);
+        }
+        if (order.weight_cost_details && order.weight_cost_details.length) {
+          beginSection('تكلفة الوزن');
+          addRow('التفاصيل', JSON.stringify(order.weight_cost_details));
+        }
+
+        // ── Related orders & settings ──
+        beginSection('مرجعيات');
+        if (order.previous_order) addCopy('الطلب السابق', order.previous_order);
+        if (order.next_order) addCopy('الطلب التالي', order.next_order);
+        if (order.invoice_settings) {
+          addBool('إشعارات الطلب', order.invoice_settings.is_order_notifications_enabled);
+          addBool('فاتورة Zid', order.invoice_settings.is_zid_invoice_generation_enabled);
+        }
+
+        flushSection();
+
+        return (
+          '<details class="meta-fold">' +
+            '<summary>تفاصيل إضافية</summary>' +
+            '<div class="meta-fold-body meta-fold-body--nested">' +
+              (sectionsHtml || infoRow('—', 'لا توجد تفاصيل')) +
+            '</div>' +
+          '</details>'
         );
       }
 
@@ -996,6 +1849,22 @@
             '<span class="info-value">' + esc(String(value)) + '</span>' +
           '</div>'
         );
+      }
+
+      function infoRowCopy(label, value) {
+        if (!value || value === '—') return infoRow(label, '—');
+        return (
+          '<div class="info-row">' +
+            '<span class="info-label">' + esc(label) + '</span>' +
+            '<span class="info-value">' + copyChip(String(value), String(value), 'order-phone') + '</span>' +
+          '</div>'
+        );
+      }
+
+      function formatWeight(grams) {
+        if (!grams) return '—';
+        if (grams >= 1000) return (grams / 1000).toFixed(grams % 1000 === 0 ? 0 : 1) + ' كجم';
+        return grams + ' جم';
       }
 
       function onOrdersClick(event) {
@@ -1088,6 +1957,8 @@
         if (!value) return '—';
         try {
           return new Date(value).toLocaleString('ar-SA', {
+            calendar: 'gregory',
+            numberingSystem: 'latn',
             year: 'numeric',
             month: 'short',
             day: 'numeric',
