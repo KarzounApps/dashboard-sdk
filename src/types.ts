@@ -174,12 +174,9 @@ export interface SourceItem {
 /** Options for `createDashboard()`. */
 export interface DashboardOptions {
   /**
-   * Called when the SDK is fully initialized (conversation + capabilities received).
-   * This is the safe point to start rendering and executing actions.
-   */
-  onReady?: () => void;
-  /**
    * Called when the host signals a connection error or the iframe is disconnected.
+   * Prefer `init({ onReady })` for the ready callback — `onReady` is not read from
+   * `createDashboard()` options.
    */
   onError?: (message: string) => void;
   /**
@@ -220,12 +217,12 @@ export interface KarzounDashboard {
   // ─── Lifecycle ─────────────────────────────────
 
   /** Initialize the SDK and signal readiness to the host. */
-  init(options?: Pick<DashboardOptions, "onReady">): void;
+  init(options?: { onReady?: () => void }): void;
 
   /** Whether the SDK is connected and has received initial data. */
   readonly isConnected: boolean;
 
-  /** Whether capabilities (miniapp actions) have been received. */
+  /** Whether conversation data has been received (capabilities are optional). */
   readonly isReady: boolean;
 
   /** Signal readiness to the host (sends `app_ready`). */

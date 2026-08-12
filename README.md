@@ -34,17 +34,16 @@ Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Pr
   - [Using with React](#using-with-react)
   - [Vanilla JS (Script Tag)](#vanilla-js-script-tag)
 - [Security Model](#security-model)
-- [Troubleshooting](#troubleshooting)
+- [Host support status](#host-support-status)
 - [Development](#development)
-- [Changelog](#changelog)
 
 ---
 
 ## Overview
 
-**Dashboard Apps** are custom panels that appear in the Octobots Inbox conversation sidebar. They let agents interact with external platforms (Shopify, Zid, Salla, custom APIs) without leaving the conversation — viewing orders, issuing refunds, checking shipping, and more.
+**Dashboard Apps** are custom panels that appear in the Karzoun Inbox conversation sidebar. They let agents interact with external platforms (Shopify, Zid, Salla, custom APIs) without leaving the conversation — viewing orders, issuing refunds, checking shipping, and more.
 
-This SDK is the **client-side library** your iframe app uses to communicate with the Octobots host. It handles:
+This SDK is the **client-side library** your iframe app uses to communicate with the Karzoun host. It handles:
 
 - **Receiving conversation & customer context** — know who the agent is talking to
 - **Executing authenticated actions** — call external APIs via stored credentials (never exposed to your code)
@@ -57,7 +56,7 @@ This SDK is the **client-side library** your iframe app uses to communicate with
 
 Before you start building a dashboard app, you need:
 
-1. **An Octobots account** with admin access to Settings
+1. **A Karzoun account** with admin access to Settings
 2. **A MiniApp installed and configured** with valid credentials (OAuth2 or API keys) — this is the backend that defines the actions your iframe can call
 3. **A hosted web page** (your iframe app) — can be any static host: Vercel, Netlify, Cloudflare Pages, your own server, or even `localhost` during development
 
@@ -67,7 +66,7 @@ Before you start building a dashboard app, you need:
 
 ### Step 1: Install a MiniApp
 
-Go to **Settings → MiniApps** in your Octobots dashboard. Find and install the miniapp for your external platform (e.g., Shopify, Zid, Salla). Follow the setup wizard to connect your store credentials.
+Go to **Settings → MiniApps** in your Karzoun dashboard. Find and install the miniapp for your external platform (e.g., Shopify, Zid, Salla). Follow the setup wizard to connect your store credentials.
 
 Once installed, the miniapp defines **actions** — named API operations like `listOrders`, `getOrderDetails`, `createRefund`, etc. These are what your iframe will call through the SDK.
 
@@ -178,20 +177,26 @@ npm install @karzoun/dashboard-sdk
 yarn add @karzoun/dashboard-sdk
 ```
 
-### CDN (Script Tag)
+If the package is not yet on the npm registry:
 
-For non-bundled environments, load the ESM build with a module script:
+```bash
+npm install github:KarzounApps/dashboard-sdk
+```
+
+### CDN (ESM module)
+
+For a single HTML file without a bundler, prefer an ESM import (after the package is published):
 
 ```html
 <script type="module">
-  import { createDashboard } from 'https://unpkg.com/@octobots/dashboard-sdk/dist/index.js';
+  import { createDashboard } from 'https://unpkg.com/@karzoun/dashboard-sdk/dist/index.js';
 
   const dashboard = createDashboard();
   dashboard.init({ onReady: () => console.log('Ready!') });
 </script>
 ```
 
-> **Note:** The SDK ships as ESM + CJS. For a `<script>` without `type="module"`, use a bundler or include an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap).
+> **Note:** The SDK ships as ESM + CJS for bundlers. Loading `dist/index.cjs` via a classic `<script src>` tag is not recommended — use ESM `type="module"` or a bundler.
 
 ---
 
@@ -290,7 +295,7 @@ The `onReady` callback fires when the host sends conversation data. If capabilit
 
 #### `dashboard.isReady` (readonly)
 
-`true` after conversation data has been received.
+`true` after conversation data has been received. Capabilities (MiniApp actions) are optional — panels without a linked MiniApp still become ready.
 
 #### `dashboard.ready()`
 
@@ -443,6 +448,8 @@ const statuses = await dashboard.getSourceData('orderStatuses');
 
 **Returns:** `Promise<SourceItem[]>`
 
+> Requires a Dashboard App linked to a MiniApp. The host proxies `miniAppsActionSources`.
+
 ---
 
 ### Host Actions
@@ -543,35 +550,37 @@ dashboard.onMessage((envelope) => {
 
 ## PostMessage Protocol
 
-The SDK abstracts these messages, but here's the full protocol for reference:
+The SDK abstracts these messages, but here's the full protocol for reference.
 
 ### Host → Iframe
 
 | Type | Payload | When |
 |------|---------|------|
-| `conversation_init` | `ConversationData` | After connection established |
-| `conversation_update` | `ConversationData` | On new messages / status change |
-| `conversation_data` | `ConversationData` | Response to `request_conversation_data` |
-| `customer_context` | `{ customerContext: CustomerContext }` | After init or context change |
-| `customer_context_update` | `{ customerContext: CustomerContext }` | On customer data change |
-| `app_capabilities` / `config_result` | `AppCapabilities` | After `app_ready`, when miniapp linked |
-| `action_result` | `ActionResult` | Successful action response |
-| `action_error` | `ActionResult` (with error) | Failed action response |
-| `host_action_result` | `HostActionResult` | Response to host action request |
-| `sources_result` | `{ items: SourceItem[] }` | Response to source data request |
-| `heartbeat_ack` | `{ timestamp }` | Response to heartbeat |
+| `conversation_init` | `ConversationData` (includes `messages[]`) | After `app_ready` |
+| `conversation_update` | Slim `ConversationData` (`messages` often empty) | Conversation / customer / message-count change |
+| `conversation_data` | Full `ConversationData` | Response to `request_conversation_data` |
+| `customer_context` | `{ customerContext }` | After init when enriched context is available |
+| `customer_context_update` | `{ customerContext }` | When enriched context changes |
+| `config_result` | `{ config: AppCapabilities }` | After init when a MiniApp is linked (`miniAppNs`, `miniAppName`, `actions[].form`) |
+| `action_result` | Action result body | Response to `execute_action` |
+| `host_action_result` | `HostActionResult` | Response to `host_action` |
+| `sources_result` | `{ items: SourceItem[] }` | Response to `request_sources` |
+| `heartbeat_ack` | `{ timestamp }` | Response to `heartbeat` |
+
+Customer data is always on **`conversation.customer`**. Enriched fields (`externalCodes`, `suggestedFormValues`) arrive via `customer_context*`. The SDK merges both into `getCustomerContext()`.
 
 ### Iframe → Host
 
 | Type | Payload | Purpose |
 |------|---------|---------|
 | `app_ready` | — | Signal iframe is ready for data |
-| `app_error` | `{ message }` | Signal error state |
-| `heartbeat` | — | Connection keepalive |
-| `request_conversation_data` | — | Request current conversation |
+| `request_conversation_data` | — | Request full conversation payload |
 | `execute_action` | `{ actionName, formInput }` | Execute a miniapp action |
+| `get_config` | — | Optional explicit config request (host also pushes `config_result`) |
+| `heartbeat` | — | Connection keepalive |
+| `app_error` | `{ message }` | Signal error state |
 | `request_sources` | `{ sourceKey }` | Request dropdown data |
-| `host_action` | `{ action, params }` | Trigger host UI action |
+| `host_action` | `{ action, params }` | Toast / note / tag / open customer |
 
 All messages include a `timestamp` field and optionally a `requestId` for correlation.
 
@@ -613,14 +622,15 @@ Full working examples are in the [`examples/`](./examples) directory:
 | Example | Description | Language |
 |---------|-------------|----------|
 | [Shopify Orders Panel](./examples/shopify-orders-panel/) | English LTR · Order list, refunds, customer context | Vanilla JS (ESM) |
-| [Zid Orders Panel](./examples/zid-orders-panel/) | Arabic RTL · Order search, invoice, shipping, products | Vanilla JS (ESM) |
+| [Zid Orders Panel](./examples/zid-orders-panel/) | Arabic RTL · Dense support UI · `get_list_of_orders` + `get_get_order_by_id` | Vanilla JS (ESM) |
 
 To run an example locally:
 
 ```bash
-npx vite
-# Open: http://localhost:5173/examples/shopify-orders-panel/index.html
+npx vite --open /examples/zid-orders-panel/
+# Open: http://localhost:5173/examples/zid-orders-panel/
 # Or:   http://localhost:5173/examples/zid-orders-panel/index.html
+# Note: path without trailing slash → 404
 ```
 
 ### Shopify Orders Panel
@@ -690,6 +700,42 @@ async function handleRefund(orderId: string, amount: number) {
 }
 ```
 
+### Zid Orders Panel (Arabic/RTL)
+
+Dense Arabic support UI (search, latest orders, expand/collapse cards, products, shipping, payment, meta). Uses real Zid MiniApp action names:
+
+```typescript
+import { createDashboard } from '@karzoun/dashboard-sdk';
+
+const dashboard = createDashboard({ debug: true });
+
+dashboard.init({
+  onReady: () => {
+    const phone = dashboard.getCustomerContext()?.customer?.primaryPhone;
+    if (phone) searchOrders(phone.replace(/\+/g, ''));
+  },
+});
+
+async function searchOrders(searchTerm: string) {
+  const list = await dashboard.executeAction('get_list_of_orders', {
+    page: '1',
+    per_page: '15',
+    search_term: searchTerm,
+  });
+  if (!list.success) return;
+
+  const ids = ((list.data as { orders?: { id: string }[] })?.orders ?? []).map((o) => o.id);
+  const details = await Promise.all(
+    ids.map((id) =>
+      dashboard.executeAction('get_get_order_by_id', { 'order-id': String(id) })
+    )
+  );
+  // render details.filter(r => r.success).map(r => (r.data as any).order)
+}
+```
+
+See [`examples/zid-orders-panel/`](./examples/zid-orders-panel/) for the full panel.
+
 ### Using with React
 
 ```tsx
@@ -743,23 +789,24 @@ function OrdersPanel() {
 }
 ```
 
-### Vanilla JS (Script Tag)
+### Vanilla JS (ESM in HTML)
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
   <title>My Dashboard App</title>
-  <script src="https://unpkg.com/@karzoun/dashboard-sdk/dist/index.cjs"></script>
 </head>
 <body>
   <div id="app">Loading...</div>
-  <script>
-    var dashboard = KarzounDashboard.createDashboard();
+  <script type="module">
+    import { createDashboard } from 'https://unpkg.com/@karzoun/dashboard-sdk/dist/index.js';
+
+    const dashboard = createDashboard();
 
     dashboard.init({
-      onReady: function () {
-        var ctx = dashboard.getCustomerContext();
+      onReady: () => {
+        const ctx = dashboard.getCustomerContext();
         document.getElementById('app').textContent =
           'Customer: ' + (ctx?.customer?.primaryEmail || 'Unknown');
       },
@@ -785,7 +832,22 @@ The SDK is designed with a **zero-trust iframe** model:
 
 5. **Server-side validation.** Required form fields are validated on the server before execution.
 
-6. **Sandboxed iframe.** The host renders iframes with `sandbox="allow-scripts allow-same-origin allow-forms"` — no top-navigation, no popups to parent.
+6. **Sandboxed iframe.** The host renders iframes with a sandbox that includes `allow-scripts`, `allow-same-origin`, `allow-forms`, `allow-popups`, and `allow-popups-to-escape-sandbox`, plus clipboard permissions via the `allow` attribute. Confirm the exact string in the Karzoun inbox host if your panel depends on popups or clipboard.
+
+---
+
+## Host support status
+
+| Feature | SDK | Karzoun inbox host |
+|---------|-----|--------------------|
+| Conversation init / update / request | Yes | Yes |
+| Customer via `conversation.customer` | Yes | Yes |
+| Enriched `externalCodes` / suggested values | Yes | Yes (`dashboardCustomerContext`) |
+| `execute_action` → MiniApp proxy | Yes | Yes |
+| Capabilities / actions list | Yes | Yes (`config_result` with `miniAppNs` / `form`) |
+| `host_action` (toast / note / tag / open customer) | Yes | Yes |
+| `request_sources` | Yes | Yes |
+| Heartbeat ack | Yes | Yes |
 
 ---
 

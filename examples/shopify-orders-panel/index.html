@@ -224,12 +224,12 @@
         currentCustomer = dashboard.getCustomerContext();
         renderCustomerBar();
 
-        if (!currentCustomer?.primaryEmail) {
+        if (!currentCustomer?.customer?.primaryEmail) {
           renderEmptyState('No customer email', 'This conversation has no linked customer email address.');
           return;
         }
 
-        await loadOrders(currentCustomer.primaryEmail);
+        await loadOrders(currentCustomer.customer.primaryEmail);
       },
     });
 

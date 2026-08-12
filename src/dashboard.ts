@@ -66,6 +66,49 @@ function generateRequestId(): string {
   return `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/**
+ * Normalize host config payloads into the public AppCapabilities shape.
+ * Host may send `{ config: { appNs, appName, actions: [{ formSchema }] } }`
+ * while the SDK documents `{ miniAppNs, miniAppName, actions: [{ form }] }`.
+ */
+function normalizeCapabilities(raw: unknown): AppCapabilities | null {
+  if (!raw || typeof raw !== "object") return null;
+
+  const root = raw as Record<string, unknown>;
+  const source = (
+    root.config && typeof root.config === "object"
+      ? root.config
+      : root
+  ) as Record<string, unknown>;
+
+  const actionsRaw = Array.isArray(source.actions) ? source.actions : [];
+  const actions: ActionDefinition[] = actionsRaw.map((item) => {
+    const a = (item ?? {}) as Record<string, unknown>;
+    const formCandidate = a.form ?? a.formSchema;
+    const form =
+      formCandidate && typeof formCandidate === "object"
+        ? (formCandidate as ActionDefinition["form"])
+        : {};
+
+    return {
+      name: String(a.name ?? ""),
+      title: String(a.title ?? a.name ?? ""),
+      description:
+        typeof a.description === "string" ? a.description : undefined,
+      form,
+      requiresInput:
+        typeof a.requiresInput === "boolean" ? a.requiresInput : undefined,
+    };
+  });
+
+  return {
+    miniAppNs: String(source.miniAppNs ?? source.appNs ?? ""),
+    miniAppName: String(source.miniAppName ?? source.appName ?? ""),
+    actions,
+    isAuthenticated: Boolean(source.isAuthenticated),
+  };
+}
+
 // ─── Factory ────────────────────────────────────────────────────────────────
 
 /**
@@ -244,6 +287,9 @@ export function createDashboard(
     const c = conversation?.conversation.customer;
     if (!c?._id) return;
 
+    const prev =
+      customerContext?.customerId === c._id ? customerContext : null;
+
     customerContext = {
       customerId: c._id,
       customer: {
@@ -251,9 +297,11 @@ export function createDashboard(
         lastName: c.lastName,
         primaryEmail: c.primaryEmail,
         primaryPhone: c.primaryPhone,
-        externalCodes: {},
+        // Preserve enriched codes from customer_context* until a new customer arrives
+        externalCodes: prev?.customer.externalCodes ?? {},
       },
       suggestedFormValues: {
+        ...(prev?.suggestedFormValues ?? {}),
         ...(c.primaryEmail ? { email: c.primaryEmail } : {}),
         ...(c.primaryPhone ? { phone: c.primaryPhone } : {}),
         ...(c.firstName ? { firstName: c.firstName } : {}),
@@ -306,13 +354,10 @@ export function createDashboard(
       // ── Capabilities (miniapp config) ───────────────────────
       case "app_capabilities":
       case "config_result": {
-        const raw = msg.data as Record<string, unknown>;
-        if (raw.config) {
-          capabilities = raw.config as AppCapabilities;
-        } else {
-          capabilities = raw as unknown as AppCapabilities;
+        capabilities = normalizeCapabilities(msg.data);
+        if (capabilities) {
+          emit("capabilitiesUpdate", capabilities);
         }
-        emit("capabilitiesUpdate", capabilities);
         checkReady();
         break;
       }
