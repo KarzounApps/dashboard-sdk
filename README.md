@@ -1,4 +1,4 @@
-# @karzoun/dashboard-sdk
+# @karzounchat/dashboard-sdk
 
 Lightweight SDK for building **Karzoun dashboard panel apps** inside iframes. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions — all without exposing credentials to the iframe.
 
@@ -172,9 +172,9 @@ If the OAuth token is expired, the backend **automatically attempts a token refr
 ### NPM / Yarn
 
 ```bash
-npm install @karzoun/dashboard-sdk
+npm install @karzounchat/dashboard-sdk
 # or
-yarn add @karzoun/dashboard-sdk
+yarn add @karzounchat/dashboard-sdk
 ```
 
 If the package is not yet on the npm registry:
@@ -189,7 +189,7 @@ For a single HTML file without a bundler, prefer an ESM import (after the packag
 
 ```html
 <script type="module">
-  import { createDashboard } from 'https://unpkg.com/@karzoun/dashboard-sdk/dist/index.js';
+  import { createDashboard } from 'https://unpkg.com/@karzounchat/dashboard-sdk/dist/index.js';
 
   const dashboard = createDashboard();
   dashboard.init({ onReady: () => console.log('Ready!') });
@@ -203,7 +203,7 @@ For a single HTML file without a bundler, prefer an ESM import (after the packag
 ## Quick Start
 
 ```typescript
-import { createDashboard } from '@karzoun/dashboard-sdk';
+import { createDashboard } from '@karzounchat/dashboard-sdk';
 
 const dashboard = createDashboard();
 
@@ -610,7 +610,7 @@ import type {
   SourceItem,
   Unsubscribe,
   PostMessageEnvelope,
-} from '@karzoun/dashboard-sdk';
+} from '@karzounchat/dashboard-sdk';
 ```
 
 ---
@@ -623,6 +623,7 @@ Full working examples are in the [`examples/`](./examples) directory:
 |---------|-------------|----------|
 | [Shopify Orders Panel](./examples/shopify-orders-panel/) | English LTR · Order list, refunds, customer context | Vanilla JS (ESM) |
 | [Zid Orders Panel](./examples/zid-orders-panel/) | Arabic RTL · Dense support UI · `get_list_of_orders` + `get_get_order_by_id` | Vanilla JS (ESM) |
+| [Salla Orders Panel](./examples/salla-orders-panel/) | Arabic RTL · Dense support UI · `get_list_orders` + `get_order_details` + histories | Vanilla JS (ESM) |
 
 To run an example locally:
 
@@ -638,7 +639,7 @@ npx vite --open /examples/zid-orders-panel/
 A complete example showing how to build an orders panel:
 
 ```typescript
-import { createDashboard } from '@karzoun/dashboard-sdk';
+import { createDashboard } from '@karzounchat/dashboard-sdk';
 
 const dashboard = createDashboard({ debug: true });
 
@@ -705,7 +706,7 @@ async function handleRefund(orderId: string, amount: number) {
 Dense Arabic support UI (search, latest orders, expand/collapse cards, products, shipping, payment, meta). Uses real Zid MiniApp action names:
 
 ```typescript
-import { createDashboard } from '@karzoun/dashboard-sdk';
+import { createDashboard } from '@karzounchat/dashboard-sdk';
 
 const dashboard = createDashboard({ debug: true });
 
@@ -740,7 +741,7 @@ See [`examples/zid-orders-panel/`](./examples/zid-orders-panel/) for the full pa
 
 ```tsx
 import { useEffect, useRef, useState } from 'react';
-import { createDashboard, type CustomerContext, type ActionResult } from '@karzoun/dashboard-sdk';
+import { createDashboard, type CustomerContext, type ActionResult } from '@karzounchat/dashboard-sdk';
 
 function OrdersPanel() {
   const dashRef = useRef(createDashboard());
@@ -800,7 +801,7 @@ function OrdersPanel() {
 <body>
   <div id="app">Loading...</div>
   <script type="module">
-    import { createDashboard } from 'https://unpkg.com/@karzoun/dashboard-sdk/dist/index.js';
+    import { createDashboard } from 'https://unpkg.com/@karzounchat/dashboard-sdk/dist/index.js';
 
     const dashboard = createDashboard();
 

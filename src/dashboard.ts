@@ -1,5 +1,5 @@
 /**
- * @karzoun/dashboard-sdk — Core Implementation
+ * @karzounchat/dashboard-sdk — Core Implementation
  *
  * `createDashboard()` factory that returns a fully-typed SDK instance
  * for building Karzoun dashboard panel apps inside iframes.
@@ -122,7 +122,7 @@ function normalizeCapabilities(raw: unknown): AppCapabilities | null {
  *
  * @example
  * ```ts
- * import { createDashboard } from '@karzoun/dashboard-sdk';
+ * import { createDashboard } from '@karzounchat/dashboard-sdk';
  *
  * const dashboard = createDashboard({ debug: true });
  *

@@ -1,5 +1,5 @@
 /**
- * @karzoun/dashboard-sdk
+ * @karzounchat/dashboard-sdk
  *
  * Lightweight SDK for building Karzoun dashboard panel apps inside iframes.
  * Provides a typed postMessage bridge for executing miniapp actions,
@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { createDashboard } from '@karzoun/dashboard-sdk';
+ * import { createDashboard } from '@karzounchat/dashboard-sdk';
  *
  * const dashboard = createDashboard();
  * dashboard.init({

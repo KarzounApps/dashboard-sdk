@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>طلبات زد — كرزون</title>
   <meta name="theme-color" content="#1f93ff">
-  <meta name="description" content="لوحة طلبات زد — تطبيق لوحة كرزون عبر @karzoun/dashboard-sdk">
+  <meta name="description" content="لوحة طلبات زد — تطبيق لوحة كرزون عبر @karzounchat/dashboard-sdk">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -810,9 +810,10 @@
      *   - get_get_order_by_id (order-id → /orders/{id}/view)
      *
      * Local Vite: import from ../../src/index.ts
-     * Production: import { createDashboard } from '@karzoun/dashboard-sdk'
+     * Production HTML (no bundler): ESM CDN below
+     * Bundler apps: import { createDashboard } from '@karzounchat/dashboard-sdk'
      */
-    import { createDashboard } from '../../src/index.ts';
+    import { createDashboard } from 'https://cdn.jsdelivr.net/npm/@karzounchat/dashboard-sdk@1.0.1/+esm';
 
     const dashboard = createDashboard({ debug: true });
 
@@ -852,6 +853,11 @@
     }
 
     function maybeAutoSearchFromContext() {
+      // Don't touch lastAutoSearchTerm until the SDK is ready — otherwise we
+      // mark the phone as "already searched", show the waiting banner, and
+      // never search again when onReady fires.
+      if (!state.ready) return;
+
       const ctx = dashboard.getCustomerContext();
       const phone = normalizeSearchTerm(ctx?.customer?.primaryPhone);
       if (!phone || phone === state.lastAutoSearchTerm) return;
@@ -872,6 +878,7 @@
         onReady: () => {
           state.ready = true;
           updateSearchControls();
+          hideBanner();
           maybeAutoSearchFromContext();
         },
       });

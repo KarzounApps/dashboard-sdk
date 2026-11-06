@@ -1,5 +1,5 @@
 /**
- * @karzoun/dashboard-sdk — Type definitions
+ * @karzounchat/dashboard-sdk — Type definitions
  *
  * All public types for the Karzoun Dashboard SDK.
  * These mirror the postMessage protocol between the host (Karzoun inbox)

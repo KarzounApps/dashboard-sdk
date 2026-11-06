@@ -1,6 +1,6 @@
 {
-  "name": "@karzoun/dashboard-sdk",
-  "version": "1.0.0",
+  "name": "@karzounchat/dashboard-sdk",
+  "version": "1.0.1",
   "description": "Lightweight SDK for building Karzoun dashboard panel apps. Provides a typed postMessage bridge for executing miniapp actions, receiving conversation/customer context, and triggering host UI actions from sandboxed iframes.",
   "author": "KarzounApps",
   "license": "MIT",
@@ -20,6 +20,9 @@
       }
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist",
     "README.md",
@@ -37,7 +40,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/KarzounApps/dashboard-sdk.git"
+    "url": "git+https://github.com/KarzounApps/dashboard-sdk.git"
   },
   "homepage": "https://github.com/KarzounApps/dashboard-sdk#readme",
   "bugs": {
